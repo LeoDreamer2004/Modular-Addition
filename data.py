@@ -5,7 +5,7 @@ from torch import Tensor
 from torch.utils.data import Dataset
 
 MODULUS = 13
-NUMS = list(range(20))
+NUMS = list(range(MODULUS))
 EOS_TOKEN = "<eos>"
 OP_TOKENS = ["+", "="]
 
