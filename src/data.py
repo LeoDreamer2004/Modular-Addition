@@ -26,7 +26,7 @@ class AlgorithmDataTokenizer:
         """Encode the equation into a tensor
 
         Arguments:
-            eq -- equation to encode
+            eq: equation to encode
         Returns:
             tensor representation of the equation
         """
@@ -36,7 +36,7 @@ class AlgorithmDataTokenizer:
         """Decode the tensor into a string
 
         Arguments:
-            eq -- tensor to decode
+            eq: tensor to decode
         Returns:
             string representation of the tensor
         """
@@ -77,6 +77,7 @@ if __name__ == "__main__":
     assert eq == decode
 
     from torch.utils.data import DataLoader
+
     dataloader = DataLoader(AlgorithmDataSet(), batch_size=2, shuffle=True)
     for batch in dataloader:
         print(batch)
