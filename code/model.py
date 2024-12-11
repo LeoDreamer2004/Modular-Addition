@@ -40,7 +40,8 @@ class TransformerModel(nn.Module):
 
         self.init_weights()
 
-    def _generate_square_subsequent_mask(self, sz: int):
+    @staticmethod
+    def _generate_square_subsequent_mask(sz: int):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
         mask = (
             mask.float()
