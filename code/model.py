@@ -13,7 +13,8 @@ class PositionalEncoding(nn.Module):
         pe = torch.zeros(max_len, n_input)
         position = torch.arange(0, max_len).unsqueeze(1).float()
         div_term = torch.exp(
-            torch.arange(0, n_input, 2).float() * (-torch.log(torch.tensor(10000.0)) / n_input)
+            torch.arange(0, n_input, 2).float()
+            * (-torch.log(torch.tensor(10000.0)) / n_input)
         )
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
@@ -21,7 +22,7 @@ class PositionalEncoding(nn.Module):
         self.register_buffer("pe", pe)
 
     def forward(self, x: Tensor):
-        x = x + self.pe[:x.size(0), :]
+        x = x + self.pe[: x.size(0), :]
         return self.dropout(x)
 
 
@@ -38,7 +39,15 @@ class TransformerModel(nn.Module):
         dropout (float, optional): The dropout rate. Default is 0.1.
     """
 
-    def __init__(self, n_token: int, n_input: int, n_head: int, n_hidden: int, n_layers: int, dropout: float = 0.1):
+    def __init__(
+        self,
+        n_token: int,
+        n_input: int,
+        n_head: int,
+        n_hidden: int,
+        n_layers: int,
+        dropout: float = 0.1,
+    ):
         super(TransformerModel, self).__init__()
         self.model_type = "Transformer"
         self.src_mask: Optional[Tensor] = None
