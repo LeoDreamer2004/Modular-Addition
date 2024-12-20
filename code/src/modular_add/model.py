@@ -9,13 +9,15 @@ class MLPModel(nn.Module):
     def __init__(self, vocab_size: int, n_layers: int):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
-        self.token_embedding = nn.Linear(vocab_size, 256)
+        self.flat = nn.Flatten()
+        self.token_embedding = nn.Linear(vocab_size, 128)
         self.hidden = nn.ModuleList(
-            [nn.Sequential(nn.Linear(256, 256), nn.ReLU()) for _ in range(n_layers)]
+            [nn.Sequential(nn.Linear(128, 128), nn.ReLU(True)) for _ in range(5)]
         )
-        self.fc = nn.Linear(256, vocab_size)
+        self.fc = nn.Linear(128, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
+        x = self.flat(src)
         x = self.token_embedding(src)
         for layer in self.hidden:
             x = layer(x)
@@ -94,7 +96,6 @@ class TransformerModel(nn.Module):
         )
 
         self.fc = nn.Linear(d_model, vocab_size)
-
         self.mask: Optional[Tensor] = None
 
     @staticmethod

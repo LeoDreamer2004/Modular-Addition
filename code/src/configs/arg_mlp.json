@@ -1,7 +1,7 @@
 {
     "model": "mlp",
     "optim": "adam",
-    "model_path": "../model/transformer.pth",
+    "model_path": "../model/mlp.pth",
     
     "modulus": 97,
     "seed": 0,

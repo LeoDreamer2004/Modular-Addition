@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 import random
-import argparse
 import os
 
 from modular_add.data import AlgorithmDataSet
@@ -62,7 +61,7 @@ def train():
     # Initialize data
     dataset = AlgorithmDataSet(Param.MODULUS)
     print("Modulus:", Param.MODULUS)
-    print("Dataset initialized. Data size: ", len(dataset))
+    print("Dataset initialized. Data size:", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
     test_dataloader = DataLoader(test_data, batch_size=len(test_data), shuffle=True)  # full-batch
