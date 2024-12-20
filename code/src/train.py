@@ -9,16 +9,8 @@ import argparse
 import os
 
 from modular_add.data import AlgorithmDataSet
-from modular_add.model import TransformerModel
+from modular_add.model import MLPModel, TransformerModel
 from modular_add.params import *
-
-
-def init_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--param", type=str, help="The path to the params")
-    namespace = parser.parse_args()
-    path = namespace.param
-    load_params(path)
 
 
 def seed():
@@ -27,14 +19,27 @@ def seed():
     random.seed(Param.SEED)
 
 
-def load_model(n_token: int):
-    model = TransformerModel(n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
-                             max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD).to(DEVICE)
-    model.load_state_dict(torch.load(Param.MODEL_PATH))
-    return model
+def get_model(n_token: int) -> nn.Module:
+    print("Using model type:", Param.MODEL)
+    match Param.MODEL:
+        case "transformer":
+            return TransformerModel(
+                n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
+                max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
+            ).to(DEVICE)
+        case "mlp":
+            return MLPModel(n_token, Param.N_LAYERS).to(DEVICE)
 
 
-def save_model(model: TransformerModel):
+def get_optimizer(model: nn.Module) -> optim.Optimizer:
+    match Param.OPTIM:
+        case "adam":
+            return optim.Adam(model.parameters(), lr=Param.LR)
+        case "sgd":
+            return optim.SGD(model.parameters(), lr=Param.LR, momentum=0.9)
+
+
+def save_model(model: nn.Module):
     torch.save(model.state_dict(), Param.MODEL_PATH)
 
 
@@ -60,32 +65,33 @@ def train():
     print("Dataset initialized. Data size: ", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
-    test_dataloader = DataLoader(test_data, batch_size=len(test_data), shuffle=True)
+    test_dataloader = DataLoader(test_data, batch_size=len(test_data), shuffle=True)  # full-batch
 
-    n_token = len(dataset.tokenizer)
-    model = TransformerModel(n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
-                             max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD).to(DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=Param.LR)
+    # Prepare model
+    model = get_model(len(dataset.tokenizer))
+    optimizer = get_optimizer(model)
     criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA)
+    scheduler = optim.lr_scheduler.StepLR(
+        optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
+    )
 
     losses = []
     train_accuracy_list = []
     test_accuracy_list = []
 
+    # Start training
     for epoch in range(Param.EPOCH_NUM):
         epoch_loss = 0
-        for i, (lhs, rhs) in enumerate(train_dataloader):
+        for lhs, rhs in train_dataloader:
             labels = rhs.argmax(dim=2).reshape(-1)
             optimizer.zero_grad()
-            output = model.forward(lhs)  # Type: ignore    
+            output = model.forward(lhs)  # Type: ignore
 
             loss = criterion.forward(output[:, -1, :], labels)
             epoch_loss += loss.item()
             loss.backward()
             optimizer.step()
         scheduler.step()
-
         losses.append(epoch_loss)
 
         if (epoch + 1) % Param.LOG_INTERVAL == 0:
@@ -100,10 +106,12 @@ def train():
                 f"Test accuracy: {test_accuracy * 100:.4f}%"
             )
 
+
         if (epoch + 1) % Param.SAVE_INTERVAL == 0:
             save_model(model)
             print("Saved model at epoch", epoch + 1)
 
+    # Plot the result
     save_model(model)
     print("Training finished.")
     plt.plot(losses)
@@ -119,9 +127,4 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "accuracy.png"))
-
-
-if __name__ == "__main__":
-    init_args()
-    train()
+    plt.savefig("acc.png")

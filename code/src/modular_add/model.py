@@ -5,6 +5,24 @@ import torch.nn as nn
 from torch import Tensor
 
 
+class MLPModel(nn.Module):
+    def __init__(self, vocab_size: int, n_layers: int):
+        super(MLPModel, self).__init__()
+        self.model_type = "MLP"
+        self.token_embedding = nn.Linear(vocab_size, 256)
+        self.hidden = nn.ModuleList(
+            [nn.Sequential(nn.Linear(256, 256), nn.ReLU()) for _ in range(n_layers)]
+        )
+        self.fc = nn.Linear(256, vocab_size)
+
+    def forward(self, src: Tensor) -> Tensor:
+        x = self.token_embedding(src)
+        for layer in self.hidden:
+            x = layer(x)
+        x = self.fc(x)
+        return x
+
+
 class DecoderLayer(nn.Module):
     def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0.1):
         super(DecoderLayer, self).__init__()
@@ -48,14 +66,14 @@ class TransformerModel(nn.Module):
     """
 
     def __init__(
-            self,
-            vocab_size: int,
-            d_model: int,
-            n_head: int,
-            dim_feedforward: int,
-            n_layers: int,
-            max_seq_length: int,
-            dropout: float = 0,
+        self,
+        vocab_size: int,
+        d_model: int,
+        n_head: int,
+        dim_feedforward: int,
+        n_layers: int,
+        max_seq_length: int,
+        dropout: float = 0,
     ):
         super(TransformerModel, self).__init__()
         self.model_type = "Transformer"
@@ -64,14 +82,16 @@ class TransformerModel(nn.Module):
         # Positional encoding
         pe = torch.zeros(max_seq_length, d_model)
         position = torch.arange(0, max_seq_length, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-torch.log(torch.tensor(10000.0)) / d_model))
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() *
+                             (-torch.log(torch.tensor(10000.0)) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)
         self.register_buffer('pos_embedding', pe)
 
         self.decoder_layers = nn.ModuleList(
-            [DecoderLayer(d_model, n_head, dim_feedforward, dropout) for _ in range(n_layers)])
+            [DecoderLayer(d_model, n_head, dim_feedforward, dropout) for _ in range(n_layers)]
+        )
 
         self.fc = nn.Linear(d_model, vocab_size)
 

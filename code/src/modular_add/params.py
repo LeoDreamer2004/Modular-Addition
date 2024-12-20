@@ -5,8 +5,11 @@ from dataclasses import dataclass
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+
 @dataclass
 class Param:
+    MODEL = "transformer"
+    OPTIM = "adam"
     MODEL_PATH = "../model/transformer.pth"
     MODULUS = 47
 
@@ -34,9 +37,11 @@ def load_params(path=None):
     if path is None:
         return
     with open(path) as f:
-        params = json.load(f)
+        params: dict = json.load(f)
     print("Loaded params from:", path)
 
+    Param.MODEL = params.get("model", Param.MODEL)
+    Param.OPTIM = params.get("optim", Param.OPTIM)
     Param.MODEL_PATH = params.get("model_path", Param.MODEL_PATH)
     Param.MODULUS = params.get("modulus", Param.MODULUS)
     Param.EPOCH_NUM = params.get("epoch_num", Param.EPOCH_NUM)
