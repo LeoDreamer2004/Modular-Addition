@@ -5,27 +5,6 @@ import torch.nn as nn
 from torch import Tensor
 
 
-class PositionalEncoding(nn.Module):
-
-    def __init__(self, n_input: int, dropout: float, max_len: int = 5000):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
-        pe = torch.zeros(max_len, n_input)
-        position = torch.arange(0, max_len).unsqueeze(1).float()
-        div_term = torch.exp(
-            torch.arange(0, n_input, 2).float()
-            * (-torch.log(torch.tensor(10000.0)) / n_input)
-        )
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer("pe", pe)
-
-    def forward(self, x: Tensor):
-        x = x + self.pe[: x.size(0), :]
-        return self.dropout(x)
-
-
 class DecoderLayer(nn.Module):
     def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0.1):
         super(DecoderLayer, self).__init__()
