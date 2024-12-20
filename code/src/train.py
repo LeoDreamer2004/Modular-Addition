@@ -6,6 +6,7 @@ import numpy as np
 
 import random
 import argparse
+import os
 
 from modular_add.data import AlgorithmDataSet
 from modular_add.model import TransformerModel
@@ -55,6 +56,7 @@ def train():
 
     # Initialize data
     dataset = AlgorithmDataSet(Param.MODULUS)
+    print("Modulus:", Param.MODULUS)
     print("Dataset initialized. Data size: ", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
@@ -93,11 +95,11 @@ def train():
             test_accuracy_list.append(test_accuracy)
             print(
                 f"Epoch: {epoch + 1}",
-                f"Loss: {epoch_loss:.6e}", 
+                f"Loss: {epoch_loss:.6e}",
                 f"Train accuracy: {train_accuracy * 100:.4f}%",
                 f"Test accuracy: {test_accuracy * 100:.4f}%"
             )
-            
+
         if (epoch + 1) % Param.SAVE_INTERVAL == 0:
             save_model(model)
             print("Saved model at epoch", epoch + 1)
@@ -108,7 +110,8 @@ def train():
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    plt.savefig("loss.png")
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "loss.png"))
+    plt.clf()
     x = range(1, Param.EPOCH_NUM + 1, Param.LOG_INTERVAL)
     plt.plot(x, train_accuracy_list, label="train")
     plt.plot(x, test_accuracy_list, label="test")
@@ -116,7 +119,7 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig("acc.png")
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "accuracy.png"))
 
 
 if __name__ == "__main__":

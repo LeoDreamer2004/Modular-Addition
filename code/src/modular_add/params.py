@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+
 @dataclass
 class Param:
     MODEL_PATH = "../model/transformer.pth"
@@ -21,20 +22,21 @@ class Param:
     N_LAYERS = 4
     MAX_SEQ_LENGTH = 8
     DROPOUT = 0.
+    WEIGHT_DECAY = 0.
     STEP_LR_STEP_SIZE = 100
     STEP_LR_GAMMA = 0.98
     LOG_INTERVAL = 10
     SAVE_INTERVAL = 100
+    FIGURE_SAVE_PATH = "../figure/"
 
 
 def load_params(path=None):
-
     if path is None:
-        return 
+        return
     with open(path) as f:
         params = json.load(f)
     print("Loaded params from:", path)
-    
+
     Param.MODEL_PATH = params.get("model_path", Param.MODEL_PATH)
     Param.MODULUS = params.get("modulus", Param.MODULUS)
     Param.EPOCH_NUM = params.get("epoch_num", Param.EPOCH_NUM)
@@ -43,7 +45,7 @@ def load_params(path=None):
     Param.TEST_ALPHA = params.get("test_alpha", Param.TEST_ALPHA)
     Param.D_MODEL = params.get("d_model", Param.D_MODEL)
     Param.N_HEAD = params.get("n_head", Param.N_HEAD)
-    Param.DIM_FEEDFORWARD = params.get("dim_feedforward",Param.DIM_FEEDFORWARD)
+    Param.DIM_FEEDFORWARD = params.get("dim_feedforward", Param.DIM_FEEDFORWARD)
     Param.N_LAYERS = params.get("n_layers", Param.N_LAYERS)
     Param.MAX_SEQ_LENGTH = params.get("max_seq_length", Param.MAX_SEQ_LENGTH)
     Param.DROPOUT = params.get("dropout", Param.DROPOUT)
@@ -51,3 +53,5 @@ def load_params(path=None):
     Param.STEP_LR_GAMMA = params.get("step_lr_gamma", Param.STEP_LR_GAMMA)
     Param.LOG_INTERVAL = params.get("log_interval", Param.LOG_INTERVAL)
     Param.SAVE_INTERVAL = params.get("save_interval", Param.SAVE_INTERVAL)
+    Param.FIGURE_SAVE_PATH = params.get("figure_save_path", Param.FIGURE_SAVE_PATH)
+    Param.WEIGHT_DECAY = params.get("weight_decay", Param.WEIGHT_DECAY)

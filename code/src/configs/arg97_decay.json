@@ -1,0 +1,20 @@
+{
+  "model_path": "../model/97_decay.pth",
+  "modulus": 97,
+  "seed": 0,
+  "epoch_num": 100000,
+  "lr": 0.003,
+  "batch_size": 256,
+  "test_alpha": 0.5,
+  "d_model": 16,
+  "n_head": 1,
+  "dim_feedforward": 32,
+  "n_layers": 3,
+  "max_seq_length": 8,
+  "dropout": 0,
+  "step_lr_step_size": 100,
+  "step_lr_gamma": 0.985,
+  "save_interval": 1000,
+  "decay": 0.0001,
+  "figure_save_path": "../mod97_decay/"
+}
