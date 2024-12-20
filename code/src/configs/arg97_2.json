@@ -2,8 +2,8 @@
     "model_path": "../model/97_2.pth",
     "modulus": 97,
     "seed": 0,
-    "epoch_num": 50000,
-    "lr": 0.0015,
+    "epoch_num": 10000,
+    "lr": 0.0008,
     "batch_size": 256,
     "test_alpha": 0.5,
     "d_model": 256,
@@ -13,7 +13,9 @@
     "max_seq_length": 6,
     "dropout": 0,
     "step_lr_step_size": 100,
+    "weight_decay": 0.001,
     "step_lr_gamma": 0.9,
+    "log_interval": 1,
     "save_interval": 1000,
     "figure_save_path": "../fig/mod97_2/"
 }

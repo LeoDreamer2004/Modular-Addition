@@ -65,10 +65,13 @@ def train():
     n_token = len(dataset.tokenizer)
     model = TransformerModel(n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
                              max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD).to(DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=Param.LR)
+    optimizer = optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
 
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: 1 / (1 + epoch) ** 0.25 if epoch < 10000 else 0.1)
+    def lambda_lr(epoch):
+        return 1 / (1 + epoch) ** 0.1
+
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda_lr)
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA)
 
     losses = []
