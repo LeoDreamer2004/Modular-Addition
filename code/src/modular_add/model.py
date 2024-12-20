@@ -88,7 +88,12 @@ class TransformerModel(nn.Module):
         return mask
 
     def forward(self, src: Tensor) -> Tensor:
-        seq_len = src.size(1)
+        if len(src.size()) == 2:
+            seq_len = src.size(0)
+            dim_len = 0
+        else:
+            seq_len = src.size(1)
+            dim_len = 1
         embed: Tensor = self.token_embedding(src)
         embed: Tensor = embed + self.pos_embedding[:, :seq_len, :]
         embed.transpose_(0, 1)
@@ -104,4 +109,5 @@ class TransformerModel(nn.Module):
 
         x.transpose_(0, 1)
         x = self.fc(x)
+        x = x.sum(dim_len) / seq_len
         return x

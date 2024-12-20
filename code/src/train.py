@@ -45,7 +45,7 @@ def accuracy(data_loader: DataLoader, model: nn.Module):
         for i, (lhs, rhs) in enumerate(data_loader):
             labels = rhs.argmax(dim=2).reshape(-1)
             output = model.forward(lhs)
-            _, predicted = torch.max(output[:, -1, :], 1)
+            _, predicted = torch.max(output, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()  # Type: ignore
         return correct / total
@@ -80,7 +80,7 @@ def train():
             optimizer.zero_grad()
             output = model.forward(lhs)  # Type: ignore    
 
-            loss = criterion.forward(output[:, -1, :], labels)
+            loss = criterion.forward(output, labels)
             epoch_loss += loss.item()
             loss.backward()
             optimizer.step()
