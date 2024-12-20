@@ -6,13 +6,13 @@ from torch import Tensor
 
 
 class DecoderLayer(nn.Module):
-    def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0.1):
+    def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0):
         super(DecoderLayer, self).__init__()
-        self.self_attn = nn.MultiheadAttention(d_model, n_head)
+        self.self_attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout)
         self.feed_forward = nn.Sequential(
             nn.Linear(d_model, dim_feedforward),
             nn.ReLU(),
-            nn.Linear(dim_feedforward, d_model)
+            nn.Linear(dim_feedforward, d_model, bias=False),
         )
         self.norm1 = nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
@@ -44,7 +44,7 @@ class TransformerModel(nn.Module):
         dim_feedforward (int): The dimension of the feedforward network model.
         n_layers (int): The number of Transformer decoder layers.
         max_seq_length (int): The maximum sequence length.
-        dropout (float, optional): The dropout rate. Default is 0.1.
+        dropout (float, optional): The dropout rate. Default is 0.
     """
 
     def __init__(

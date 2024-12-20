@@ -67,52 +67,64 @@ def train():
                              max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=Param.LR)
     criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA)
+
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda epoch: 1 / (1 + epoch) ** 0.25 if epoch < 10000 else 0.1)
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA)
 
     losses = []
     train_accuracy_list = []
     test_accuracy_list = []
+    trained_epoch = 0
 
-    for epoch in range(Param.EPOCH_NUM):
-        epoch_loss = 0
-        for i, (lhs, rhs) in enumerate(train_dataloader):
-            labels = rhs.argmax(dim=2).reshape(-1)
-            optimizer.zero_grad()
-            output = model.forward(lhs)  # Type: ignore    
+    try:
+        for epoch in range(Param.EPOCH_NUM):
+            epoch_loss = 0
+            for i, (lhs, rhs) in enumerate(train_dataloader):
+                labels = rhs.argmax(dim=2).reshape(-1)
+                optimizer.zero_grad()
+                output = model.forward(lhs)  # Type: ignore
 
-            loss = criterion.forward(output, labels)
-            epoch_loss += loss.item()
-            loss.backward()
-            optimizer.step()
-        scheduler.step()
+                loss = criterion.forward(output, labels)
+                epoch_loss += loss.item()
+                loss.backward()
+                optimizer.step()
+            scheduler.step()
 
-        losses.append(epoch_loss)
+            losses.append(epoch_loss)
 
-        if (epoch + 1) % Param.LOG_INTERVAL == 0:
-            train_accuracy = accuracy(train_dataloader, model)
-            test_accuracy = accuracy(test_dataloader, model)
-            train_accuracy_list.append(train_accuracy)
-            test_accuracy_list.append(test_accuracy)
-            print(
-                f"Epoch: {epoch + 1}",
-                f"Loss: {epoch_loss:.6e}",
-                f"Train accuracy: {train_accuracy * 100:.4f}%",
-                f"Test accuracy: {test_accuracy * 100:.4f}%"
-            )
+            if (epoch + 1) % Param.LOG_INTERVAL == 0:
+                train_accuracy = accuracy(train_dataloader, model)
+                test_accuracy = accuracy(test_dataloader, model)
+                train_accuracy_list.append(train_accuracy)
+                test_accuracy_list.append(test_accuracy)
+                print(
+                    f"Epoch: {epoch + 1}",
+                    f"Loss: {epoch_loss:.6e}",
+                    f"Train accuracy: {train_accuracy * 100:.4f}%",
+                    f"Test accuracy: {test_accuracy * 100:.4f}%"
+                )
 
-        if (epoch + 1) % Param.SAVE_INTERVAL == 0:
-            save_model(model)
-            print("Saved model at epoch", epoch + 1)
+            if (epoch + 1) % Param.SAVE_INTERVAL == 0:
+                save_model(model)
+                print("Saved model at epoch", epoch + 1)
+
+            trained_epoch += 1
+    except KeyboardInterrupt:
+        print("Training interrupted.")
 
     save_model(model)
     print("Training finished.")
+    if not os.path.exists(Param.FIGURE_SAVE_PATH):
+        os.makedirs(Param.FIGURE_SAVE_PATH)
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
     plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "loss.png"))
     plt.clf()
-    x = range(1, Param.EPOCH_NUM + 1, Param.LOG_INTERVAL)
+    x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
+    if len(x) > len(train_accuracy_list):
+        x = x[:len(train_accuracy_list)]
     plt.plot(x, train_accuracy_list, label="train")
     plt.plot(x, test_accuracy_list, label="test")
     plt.xlabel("Epoch")
