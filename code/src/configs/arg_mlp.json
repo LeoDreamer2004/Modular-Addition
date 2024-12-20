@@ -2,7 +2,6 @@
     "model": "mlp",
     "optim": "adam",
     "model_path": "../model/transformer.pth",
-    
     "modulus": 97,
     "seed": 0,
     "epoch_num": 500,
