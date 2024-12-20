@@ -6,15 +6,16 @@ from torch import Tensor
 
 
 class MLPModel(nn.Module):
-    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 128):
+    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 256):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
+        # TODO: Better embedding
         self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
         self.hidden = nn.ModuleList(
-            [nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.ReLU(True))
+            [nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.ReLU())
              for _ in range(n_layers)]
         )
-        self.fc = nn.Linear(128, vocab_size)
+        self.fc = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
         x = self.token_embedding(src.reshape(src.shape[0], -1))

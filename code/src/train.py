@@ -27,13 +27,16 @@ def get_model(n_token: int) -> nn.Module:
                 max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
             ).to(DEVICE)
         case "mlp":
-            return MLPModel(n_token, Param.N_LAYERS).to(DEVICE)
+            return MLPModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
 
 
 def get_optimizer(model: nn.Module) -> optim.Optimizer:
-    match Param.OPTIM:
+    print("Using optimizer:", Param.OPTIMIZER)
+    match Param.OPTIMIZER:
         case "adam":
             return optim.Adam(model.parameters(), lr=Param.LR)
+        case "adamw":
+            return optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
         case "sgd":
             return optim.SGD(model.parameters(), lr=Param.LR, momentum=0.9)
 
@@ -66,20 +69,9 @@ def train():
     # Prepare model
     model = get_model(len(dataset.tokenizer))
     optimizer = get_optimizer(model)
-    n_token = len(dataset.tokenizer)
-    model = TransformerModel(n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
-                             max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD).to(DEVICE)
-    optimizer = optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
-    # scheduler = optim.lr_scheduler.StepLR(
-    # optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
-    # )
 
-    def lambda_lr(epoch):
-        return 1 / (1 + epoch) ** 0.1
-
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda_lr)
-
+    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda e: 1 / (1 + e) ** 0.1)
     losses = []
     train_accuracy_list = []
     test_accuracy_list = []
@@ -119,18 +111,20 @@ def train():
             trained_epoch += 1
     except KeyboardInterrupt:
         print("Training interrupted.")
+    else:
+        print("Training finished.")
 
-    # Plot the result
     save_model(model)
-    print("Training finished.")
+    print("Model saved at", Param.MODEL_PATH)
+
+    # Save figures
     if not os.path.exists(Param.FIGURE_SAVE_PATH):
         os.makedirs(Param.FIGURE_SAVE_PATH)
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    suffix = f"{Param.MODULUS}-{Param.MODEL}-{Param.OPTIM}-{Param.TEST_ALPHA}"
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"loss_{suffix}.png"))
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "loss.png"))
     plt.clf()
     x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
     if len(x) > len(train_accuracy_list):
@@ -141,4 +135,5 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"acc_{suffix}.png"))
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "accuracy.png"))
+    print("Figures saved at", Param.FIGURE_SAVE_PATH)
