@@ -48,7 +48,8 @@ def train():
                              max_seq_length=MAX_SEQ_LENGTH, dim_feedforward=DIM_FEEDFORWARD).to(DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     criterion = nn.CrossEntropyLoss()
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.95)
+
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=100, gamma=0.98)
 
     losses = []
     train_accuracy_list = []
@@ -79,10 +80,18 @@ def train():
 
     save_model(model)
     plt.plot(losses)
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.xscale("log")
     plt.show()
     x = range(1, EPOCH_NUM + 1, log_interval)
     plt.plot(x, train_accuracy_list, label="train")
     plt.plot(x, test_accuracy_list, label="test")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.xscale("log")
+    plt.show()
 
 
 if __name__ == "__main__":
