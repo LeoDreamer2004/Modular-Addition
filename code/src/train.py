@@ -45,14 +45,11 @@ def save_model(model: nn.Module):
 def accuracy(data_loader: DataLoader, model: nn.Module):
     with torch.no_grad():
         correct = 0
-        total = 0
-        for i, (lhs, rhs) in enumerate(data_loader):
-            labels = rhs.argmax(dim=2).reshape(-1)
+        for lhs, rhs in data_loader:  # full-batch
             output = model.forward(lhs)
-            _, predicted = torch.max(output[:, -1, :], 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()  # Type: ignore
-        return correct / total
+            _, predicted = torch.max(output, 1)
+            correct += (predicted == rhs).sum().item()  # Type: ignore
+        return correct / len(data_loader.dataset)
 
 
 def train():
@@ -82,11 +79,10 @@ def train():
     for epoch in range(Param.EPOCH_NUM):
         epoch_loss = 0
         for lhs, rhs in train_dataloader:
-            labels = rhs.argmax(dim=2).reshape(-1)
             optimizer.zero_grad()
             output = model.forward(lhs)  # Type: ignore
 
-            loss = criterion.forward(output[:, -1, :], labels)
+            loss = criterion.forward(output, rhs)
             epoch_loss += loss.item()
             loss.backward()
             optimizer.step()
@@ -105,7 +101,6 @@ def train():
                 f"Test accuracy: {test_accuracy * 100:.4f}%"
             )
 
-
         if (epoch + 1) % Param.SAVE_INTERVAL == 0:
             save_model(model)
             print("Saved model at epoch", epoch + 1)
@@ -117,7 +112,8 @@ def train():
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "loss.png"))
+    suffix = f"{Param.MODULUS}-{Param.MODEL}-{Param.OPTIM}"
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"loss_{suffix}.png"))
     plt.clf()
     x = range(1, Param.EPOCH_NUM + 1, Param.LOG_INTERVAL)
     plt.plot(x, train_accuracy_list, label="train")
@@ -126,4 +122,4 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig("acc.png")
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"acc_{suffix}.png"))

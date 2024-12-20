@@ -6,19 +6,18 @@ from torch import Tensor
 
 
 class MLPModel(nn.Module):
-    def __init__(self, vocab_size: int, n_layers: int):
+    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 128):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
-        self.flat = nn.Flatten()
-        self.token_embedding = nn.Linear(vocab_size, 128)
+        self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
         self.hidden = nn.ModuleList(
-            [nn.Sequential(nn.Linear(128, 128), nn.ReLU(True)) for _ in range(5)]
+            [nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.ReLU(True))
+             for _ in range(n_layers)]
         )
         self.fc = nn.Linear(128, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
-        x = self.flat(src)
-        x = self.token_embedding(src)
+        x = self.token_embedding(src.reshape(src.shape[0], -1))
         for layer in self.hidden:
             x = layer(x)
         x = self.fc(x)
@@ -125,4 +124,4 @@ class TransformerModel(nn.Module):
 
         x.transpose_(0, 1)
         x = self.fc(x)
-        return x
+        return x[:, -1, :]

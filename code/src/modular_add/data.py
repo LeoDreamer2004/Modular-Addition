@@ -1,5 +1,3 @@
-# We focus on x + y (mod p), tokenize?
-
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -55,13 +53,19 @@ class AlgorithmDataTokenizer:
 
 
 class AlgorithmDataSet(Dataset):
+    """
+    Modular addition dataset
+
+    input: "a + b ="            encoded shape: (4, vocab_size)  (one-hot encoding)
+    output: (a + b) % modulus   encoded shape: ()  (index)
+    """
 
     def __init__(self, modulus: int):
         self.modulus = modulus
         self.tokenizer = AlgorithmDataTokenizer(modulus)
         lhs, rhs = self.make_data()
         self.lhs = [self.tokenizer.encode(d).to(DEVICE) for d in lhs]
-        self.rhs = [self.tokenizer.encode(d).to(DEVICE) for d in rhs]
+        self.rhs = torch.tensor([self.tokenizer.s2i[d] for d in rhs]).to(DEVICE)
 
     def __len__(self):
         return len(self.lhs)
@@ -70,14 +74,7 @@ class AlgorithmDataSet(Dataset):
         return self.lhs[idx], self.rhs[idx]
 
     def make_data(self):
-        lhs = [
-            f"{a} + {b} ="
-            for a in self.tokenizer.nums
-            for b in self.tokenizer.nums
-        ]
-        rhs = [
-            str((a + b) % self.modulus)
-            for a in self.tokenizer.nums
-            for b in self.tokenizer.nums
-        ]
+        nums = self.tokenizer.nums
+        lhs = [f"{a} + {b} =" for a in nums for b in nums]
+        rhs = [str((a + b) % self.modulus) for a in nums for b in nums]
         return lhs, rhs
