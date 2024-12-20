@@ -16,6 +16,5 @@
     "weight_decay": 0.001,
     "step_lr_gamma": 0.9,
     "log_interval": 1,
-    "save_interval": 1000,
-    "figure_save_path": "../fig/transformer/"
+    "save_interval": 1000
 }

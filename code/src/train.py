@@ -72,8 +72,9 @@ def train():
     optimizer = optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
     # scheduler = optim.lr_scheduler.StepLR(
-        # optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
+    # optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
     # )
+
     def lambda_lr(epoch):
         return 1 / (1 + epoch) ** 0.1
 
@@ -128,7 +129,7 @@ def train():
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    suffix = f"{Param.MODULUS}-{Param.MODEL}-{Param.OPTIM}"
+    suffix = f"{Param.MODULUS}-{Param.MODEL}-{Param.OPTIM}-{Param.TEST_ALPHA}"
     plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"loss_{suffix}.png"))
     plt.clf()
     x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)

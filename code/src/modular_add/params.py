@@ -10,7 +10,7 @@ class Param:
     MODEL: str = "transformer"
     OPTIM: str = "adam"
     MODEL_PATH: str = "../model/transformer.pth"
-    FIGURE_SAVE_PATH: str = "../figure/"
+    FIGURE_SAVE_PATH: str = "../fig/"
     MODULUS: int = 47
 
     # Default Hyperparameters
@@ -37,7 +37,7 @@ def load_params(path=None):
         return
     with open(path) as f:
         params = json.load(f)
-        
+
     for key, value in params.items():
         setattr(Param, key.upper(), value)
     print("Loaded params from:", path)
