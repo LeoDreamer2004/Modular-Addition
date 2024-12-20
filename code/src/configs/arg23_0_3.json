@@ -16,5 +16,8 @@
     "max_seq_length": 8,
     "dropout": 0,
     "step_lr_step_size": 100,
-    "step_lr_gamma": 0.98
+    "step_lr_gamma": 0.98,
+
+    "log_interval": 40,
+    "save_interval": 1000
 }

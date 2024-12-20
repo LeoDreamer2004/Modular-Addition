@@ -5,58 +5,39 @@ from dataclasses import dataclass
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-
 @dataclass
 class Param:
-    MODEL = "transformer"
-    OPTIM = "adam"
-    MODEL_PATH = "../model/transformer.pth"
-    MODULUS = 47
+    MODEL: str = "transformer"
+    OPTIM: str = "adam"
+    MODEL_PATH: str = "../model/transformer.pth"
+    FIGURE_SAVE_PATH: str = "../figure/"
+    MODULUS: int = 47
 
     # Default Hyperparameters
-    SEED = 0
-    EPOCH_NUM = 50000
-    LR = 0.001
-    BATCH_SIZE = 256
-    TEST_ALPHA = 0.4
-    D_MODEL = 16
-    N_HEAD = 1
-    DIM_FEEDFORWARD = 32
-    N_LAYERS = 4
-    MAX_SEQ_LENGTH = 8
-    DROPOUT = 0.
-    WEIGHT_DECAY = 0.
-    STEP_LR_STEP_SIZE = 100
-    STEP_LR_GAMMA = 0.98
-    LOG_INTERVAL = 10
-    SAVE_INTERVAL = 100
-    FIGURE_SAVE_PATH = "../figure/"
+    SEED: int = 0
+    EPOCH_NUM: int = 50000
+    LR: float = 0.001
+    BATCH_SIZE: int = 256
+    TEST_ALPHA: float = 0.4
+    D_MODEL: int = 16
+    N_HEAD: int = 1
+    DIM_FEEDFORWARD: int = 32
+    N_LAYERS: int = 4
+    MAX_SEQ_LENGTH: int = 8
+    DROPOUT: float = 0.
+    WEIGHT_DECAY: float = 0.
+    STEP_LR_STEP_SIZE: int = 100
+    STEP_LR_GAMMA: float = 0.98
+    LOG_INTERVAL: int = 10
+    SAVE_INTERVAL: int = 100
 
 
 def load_params(path=None):
     if path is None:
         return
     with open(path) as f:
-        params: dict = json.load(f)
+        params = json.load(f)
+        
+    for key, value in params.items():
+        setattr(Param, key.upper(), value)
     print("Loaded params from:", path)
-
-    Param.MODEL = params.get("model", Param.MODEL)
-    Param.OPTIM = params.get("optim", Param.OPTIM)
-    Param.MODEL_PATH = params.get("model_path", Param.MODEL_PATH)
-    Param.MODULUS = params.get("modulus", Param.MODULUS)
-    Param.EPOCH_NUM = params.get("epoch_num", Param.EPOCH_NUM)
-    Param.LR = params.get("lr", Param.LR)
-    Param.BATCH_SIZE = params.get("batch_size", Param.BATCH_SIZE)
-    Param.TEST_ALPHA = params.get("test_alpha", Param.TEST_ALPHA)
-    Param.D_MODEL = params.get("d_model", Param.D_MODEL)
-    Param.N_HEAD = params.get("n_head", Param.N_HEAD)
-    Param.DIM_FEEDFORWARD = params.get("dim_feedforward", Param.DIM_FEEDFORWARD)
-    Param.N_LAYERS = params.get("n_layers", Param.N_LAYERS)
-    Param.MAX_SEQ_LENGTH = params.get("max_seq_length", Param.MAX_SEQ_LENGTH)
-    Param.DROPOUT = params.get("dropout", Param.DROPOUT)
-    Param.STEP_LR_STEP_SIZE = params.get("step_lr_step_size", Param.STEP_LR_STEP_SIZE)
-    Param.STEP_LR_GAMMA = params.get("step_lr_gamma", Param.STEP_LR_GAMMA)
-    Param.LOG_INTERVAL = params.get("log_interval", Param.LOG_INTERVAL)
-    Param.SAVE_INTERVAL = params.get("save_interval", Param.SAVE_INTERVAL)
-    Param.FIGURE_SAVE_PATH = params.get("figure_save_path", Param.FIGURE_SAVE_PATH)
-    Param.WEIGHT_DECAY = params.get("weight_decay", Param.WEIGHT_DECAY)
