@@ -1,0 +1,35 @@
+{
+    // The model to be used
+    "model": "transformer",
+    // The optimizer to be used
+    "optim": "adam",
+    // Where to save the model
+    "model_path": "../model/transformer.pth",
+    // The modulus to be used, it should be a prime number
+    "modulus": 97,
+    // Random seed
+    "seed": 0,
+    // Number of epochs
+    "epoch_num": 500,
+    // Learning rate
+    "lr": 0.001,
+    // Batch size
+    "batch_size": 256,
+    // Percentage of the dataset to be used for testing
+    "test_alpha": 0.5,
+    // The dimension of the model (used in transformer model)
+    "d_model": 16,
+    // The number of attention heads (used in transformer model)
+    "n_head": 1,
+    // The dimension of the feedforward network (used in transformer model)
+    "dim_feedforward": 32,
+    // The number of layers (used in transformer model and MLP)
+    "n_layers": 3,
+    // The maximum sequence length
+    "max_seq_length": 8,
+    // Dropout rate
+    "dropout": 0,
+    // For learning rate scheduling
+    "step_lr_step_size": 100,
+    "step_lr_gamma": 0.98
+}

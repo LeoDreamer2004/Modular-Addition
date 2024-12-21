@@ -1,5 +1,6 @@
 from sklearn.model_selection import train_test_split
 from torch import nn, optim
+from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 import numpy as np
@@ -42,6 +43,8 @@ def get_optimizer(model: nn.Module) -> optim.Optimizer:
 
 
 def save_model(model: nn.Module):
+    if not os.path.exists(os.path.dirname(Param.MODEL_PATH)):
+        os.makedirs(os.path.dirname(Param.MODEL_PATH))
     torch.save(model.state_dict(), Param.MODEL_PATH)
 
 
@@ -88,6 +91,7 @@ def train():
                 loss = criterion.forward(output, rhs)
                 epoch_loss += loss.item()
                 loss.backward()
+                clip_grad_norm_(model.parameters(), Param.MAX_GRAD_NORM)
                 optimizer.step()
             scheduler.step()
             losses.append(epoch_loss)
@@ -120,11 +124,12 @@ def train():
     # Save figures
     if not os.path.exists(Param.FIGURE_SAVE_PATH):
         os.makedirs(Param.FIGURE_SAVE_PATH)
+    suffix = f"{Param.MODEL}-{Param.OPTIMIZER}-{Param.TEST_ALPHA}"
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "loss.png"))
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"loss-{suffix}.png"))
     plt.clf()
     x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
     if len(x) > len(train_accuracy_list):
@@ -135,5 +140,5 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, "accuracy.png"))
+    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"accuracy-{suffix}.png"))
     print("Figures saved at", Param.FIGURE_SAVE_PATH)

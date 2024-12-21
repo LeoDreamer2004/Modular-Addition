@@ -3,7 +3,7 @@
     "optimizer": "AdamW",
     "modulus": 97,
     "seed": 0,
-    "epoch_num": 5000,
+    "epoch_num": 3500,
     "lr": 0.0008,
     "batch_size": 256,
     "test_alpha": 0.5,
@@ -13,9 +13,9 @@
     "n_layers": 2,
     "max_seq_length": 6,
     "dropout": 0,
-    "step_lr_step_size": 100,
     "weight_decay": 0.001,
-    "step_lr_gamma": 0.9,
     "log_interval": 1,
-    "save_interval": 1000
+    "save_interval": 1000,
+    // Gradient clipping
+    "max_grad_norm": 2
 }

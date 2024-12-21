@@ -12,7 +12,7 @@ def test_dataset():
     for i in range(len(dataset)):
         lhs, rhs = dataset[i]
         lhs = dataset.tokenizer.decode(lhs)
-        rhs = dataset.tokenizer.decode(rhs)
+        # rhs = dataset.tokenizer.decode(rhs)
         num1, num2 = get_nums(lhs)
         assert (num1 + num2) % 13 == int(rhs)
 
@@ -24,6 +24,5 @@ def test_dataloader():
         batch_size = lhs.shape[0]  # Type: ignore
         for j in range(batch_size):
             lhs_j = dataset.tokenizer.decode(lhs[j])  # Type: ignore
-            rhs_j = dataset.tokenizer.decode(rhs[j])
             num1, num2 = get_nums(lhs_j)
-            assert (num1 + num2) % 13 == int(rhs_j)
+            assert (num1 + num2) % 13 == int(rhs[j])
