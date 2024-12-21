@@ -25,6 +25,21 @@ class MLPModel(nn.Module):
         return x
 
 
+class LSTMModel(nn.Module):
+    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 256):
+        super(LSTMModel, self).__init__()
+        self.model_type = "LSTM"
+        self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
+        self.lstm = nn.LSTM(hidden_size, hidden_size, n_layers, batch_first=True)
+        self.fc = nn.Linear(hidden_size, vocab_size)
+
+    def forward(self, src: Tensor) -> Tensor:
+        x = self.token_embedding(src.reshape(src.shape[0], -1))
+        x, _ = self.lstm(x)
+        x = self.fc(x)
+        return x
+
+
 class DecoderLayer(nn.Module):
     def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0):
         super(DecoderLayer, self).__init__()
@@ -68,14 +83,14 @@ class TransformerModel(nn.Module):
     """
 
     def __init__(
-        self,
-        vocab_size: int,
-        d_model: int,
-        n_head: int,
-        dim_feedforward: int,
-        n_layers: int,
-        max_seq_length: int,
-        dropout: float = 0,
+            self,
+            vocab_size: int,
+            d_model: int,
+            n_head: int,
+            dim_feedforward: int,
+            n_layers: int,
+            max_seq_length: int,
+            dropout: float = 0,
     ):
         super(TransformerModel, self).__init__()
         self.model_type = "Transformer"
