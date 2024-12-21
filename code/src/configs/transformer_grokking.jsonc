@@ -14,7 +14,7 @@
     "max_seq_length": 6,
     "dropout": 0,
     "weight_decay": 0.001,
-    "log_interval": 1,
+    "log_interval": 10,
     "save_interval": 1000,
     // Gradient clipping
     "max_grad_norm": 2
