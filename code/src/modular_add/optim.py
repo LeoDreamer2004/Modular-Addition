@@ -34,3 +34,7 @@ def decay_1(e):
 
 def decay_transformer(e):
     return 1 / (1 + e) ** 0.055
+
+
+def decay_lstm(e):
+    return 1 / (1 + e) ** 0.04
