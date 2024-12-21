@@ -1,19 +1,17 @@
 {
+    // Running on ArchLinux with Python 3.12.7 torch 2.5.1
     "model": "mlp",
     "optimizer": "adam",
-    // "scheduler": "lambda",
-    // "lambda_lr_func": "decay_1",
     "weight_decay": 0.001,
     "model_path": "../model/mlp.pth",
     "modulus": 97,
-    // "max_grad_norm": 1.0,
     "seed": 1,
-    "epoch_num": 100000,
+    "epoch_num": 30000,
     "lr": 0.001,
     "batch_size": 256,
-    "test_alpha": 0.42,
+    "test_alpha": 0.5,
     "step_lr_step_size": 100,
     "step_lr_gamma": 0.98,
     "hidden_size": 256,
-    "n_layers": 5
+    "n_layers": 7
 }

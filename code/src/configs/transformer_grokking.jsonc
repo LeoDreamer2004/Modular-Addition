@@ -1,6 +1,8 @@
 {
     "model_path": "../model/transformer.pth",
     "optimizer": "AdamW",
+    "scheduler": "lambda",
+    "lambda_lr_func": "decay_transformer",
     "modulus": 97,
     "epoch_num": 2000,
     "lr": 0.001,

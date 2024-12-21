@@ -12,12 +12,14 @@ def get_optimizer(model: nn.Module) -> optim.Optimizer:
         case "adamw":
             return optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
         case "sgd":
-            return optim.SGD(model.parameters(), lr=Param.LR, momentum=0.9)
+            return optim.SGD(model.parameters(), lr=Param.LR, momentum=Param.MOMENTUM)
 
 
 def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
     print("Using scheduler:", Param.SCHEDULER)
     match Param.SCHEDULER.lower():
+        case "constant":
+            return lr_scheduler.ConstantLR(optimizer)
         case "step":
             return lr_scheduler.StepLR(
                 optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
