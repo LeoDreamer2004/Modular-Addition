@@ -1,12 +1,12 @@
-from sklearn.model_selection import train_test_split
-from torch import nn, optim, Tensor
-from torch.nn.utils import clip_grad_norm_
-from torch.utils.data import DataLoader
+import os
+import random
+
 import matplotlib.pyplot as plt
 import numpy as np
-
-import random
-import os
+from sklearn.model_selection import train_test_split
+from torch import nn, Tensor
+from torch.nn.utils import clip_grad_norm_
+from torch.utils.data import DataLoader
 
 from modular_add.data import AlgorithmDataSet
 from modular_add.model import get_model
@@ -16,6 +16,7 @@ from modular_add.params import *
 
 def seed():
     torch.manual_seed(Param.SEED)
+    torch.cuda.manual_seed(Param.SEED)
     np.random.seed(Param.SEED)
     random.seed(Param.SEED)
 
