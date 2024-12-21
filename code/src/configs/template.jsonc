@@ -2,7 +2,7 @@
     // The model to be used
     "model": "transformer",
     // The optimizer to be used
-    "optim": "adam",
+    "optimizer": "adam",
     // Where to save the model
     "model_path": "../model/transformer.pth",
     // The modulus to be used, it should be a prime number

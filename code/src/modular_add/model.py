@@ -4,6 +4,22 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
+from modular_add.params import *
+
+
+def get_model(n_token: int) -> nn.Module:
+    print("Using model type:", Param.MODEL)
+    match Param.MODEL:
+        case "transformer":
+            return TransformerModel(
+                n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
+                max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
+            ).to(DEVICE)
+        case "mlp":
+            return MLPModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+        case "lstm":
+            return LSTMModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+
 
 class MLPModel(nn.Module):
     def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 256):

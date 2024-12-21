@@ -9,7 +9,8 @@ import random
 import os
 
 from modular_add.data import AlgorithmDataSet
-from modular_add.model import MLPModel, TransformerModel, LSTMModel
+from modular_add.model import get_model
+from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
 
 
@@ -17,31 +18,6 @@ def seed():
     torch.manual_seed(Param.SEED)
     np.random.seed(Param.SEED)
     random.seed(Param.SEED)
-
-
-def get_model(n_token: int) -> nn.Module:
-    print("Using model type:", Param.MODEL)
-    match Param.MODEL:
-        case "transformer":
-            return TransformerModel(
-                n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
-                max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
-            ).to(DEVICE)
-        case "mlp":
-            return MLPModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
-        case "lstm":
-            return LSTMModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
-
-
-def get_optimizer(model: nn.Module) -> optim.Optimizer:
-    print("Using optimizer:", Param.OPTIMIZER)
-    match Param.OPTIMIZER.lower():
-        case "adam":
-            return optim.Adam(model.parameters(), lr=Param.LR)
-        case "adamw":
-            return optim.AdamW(model.parameters(), lr=Param.LR, weight_decay=Param.WEIGHT_DECAY)
-        case "sgd":
-            return optim.SGD(model.parameters(), lr=Param.LR, momentum=0.9)
 
 
 def save_model(model: nn.Module):
@@ -75,9 +51,9 @@ def train():
     # Prepare model
     model = get_model(len(dataset.tokenizer))
     optimizer = get_optimizer(model)
+    scheduler = get_scheduler(optimizer)
     criterion = nn.CrossEntropyLoss()
 
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda e: 1 / (1 + e) ** 0.1)
     losses = []
     train_accuracy_list = []
     test_accuracy_list = []
@@ -127,7 +103,7 @@ def train():
     # Save figures
     if not os.path.exists(Param.FIGURE_SAVE_PATH):
         os.makedirs(Param.FIGURE_SAVE_PATH)
-    suffix = f"{Param.MODEL}-{Param.OPTIMIZER}-{Param.TEST_ALPHA}"
+    suffix = f"{Param.MODEL.lower()}-{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
