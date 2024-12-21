@@ -1,6 +1,8 @@
 {
     "model": "mlp",
-    "optimizer": "adamw",
+    "optimizer": "adam",
+    // "scheduler": "lambda",
+    // "lambda_lr_func": "decay_1",
     "weight_decay": 0.001,
     "model_path": "../model/mlp.pth",
     "modulus": 97,

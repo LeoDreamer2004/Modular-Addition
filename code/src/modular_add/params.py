@@ -8,7 +8,6 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Param:
     ### Environment ###
     MODEL: str = "transformer"
-    OPTIMIZER: str = "adam"
     MODEL_PATH: str = "../model/transformer.pth"
     FIGURE_SAVE_PATH: str = "../fig/"
     MODULUS: int = 97
@@ -25,14 +24,19 @@ class Param:
     BATCH_SIZE: int = 256
     TEST_ALPHA: float = 0.4
 
-    # optimizer
-    WEIGHT_DECAY: float = 0.
-    STEP_LR_STEP_SIZE: int = 100
-    STEP_LR_GAMMA: float = 0.98
-    MAX_GRAD_NORM: float = float("inf")
-
     # model
     N_LAYERS: int = 4
+
+    # optimizer
+    OPTIMIZER: str = "adam"
+    WEIGHT_DECAY: float = 0.
+    MAX_GRAD_NORM: float = float("inf")
+    
+    # scheduler
+    SCHEDULER = "step"
+    STEP_LR_STEP_SIZE: int = 100
+    STEP_LR_GAMMA: float = 0.98
+    LAMBDA_LR_FUNC: str = "decay_1"
 
     # transformer
     D_MODEL: int = 16
