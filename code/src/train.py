@@ -77,7 +77,8 @@ def train():
     optimizer = get_optimizer(model)
     criterion = nn.CrossEntropyLoss()
 
-    scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda e: 1 / (1 + e) ** 0.055)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA)
+    # scheduler = optim.lr_scheduler.LambdaLR(optimizer, lambda e: 1 / (1 + e) ** 0.1)
     losses = []
     train_accuracy_list = []
     test_accuracy_list = []
