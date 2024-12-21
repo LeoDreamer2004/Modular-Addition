@@ -46,7 +46,6 @@ class Param:
 
 
 def load_params(path=None):
-
     import json
     import re
 
