@@ -1,16 +1,18 @@
 {
   "model": "lstm",
-  "optim": "adamw",
+  "optimizer": "adam",
   "model_path": "../model/lstm.pth",
   "modulus": 97,
   "seed": 0,
   "epoch_num": 100000,
   "weight_decay": 0.001,
-  "lr": 0.002,
+  "lr": 0.001,
   "batch_size": 256,
   "test_alpha": 0.5,
   "step_lr_step_size": 100,
   "step_lr_gamma": 0.98,
-  "hidden_size": 256,
-  "n_layers": 2
+  "input_size": 256,
+  "hidden_size": 128,
+  "n_layers": 3
+  //  "max_grad_norm": 2
 }

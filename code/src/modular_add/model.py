@@ -26,11 +26,11 @@ class MLPModel(nn.Module):
 
 
 class LSTMModel(nn.Module):
-    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 256):
+    def __init__(self, vocab_size: int, n_layers: int, input_size: int = 128, hidden_size: int = 256):
         super(LSTMModel, self).__init__()
         self.model_type = "LSTM"
-        self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
-        self.lstm = nn.LSTM(hidden_size, hidden_size, n_layers, batch_first=True)
+        self.token_embedding = nn.Linear(4 * vocab_size, input_size)
+        self.lstm = nn.LSTM(input_size, hidden_size, n_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
