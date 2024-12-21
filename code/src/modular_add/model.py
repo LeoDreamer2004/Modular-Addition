@@ -68,14 +68,14 @@ class TransformerModel(nn.Module):
     """
 
     def __init__(
-        self,
-        vocab_size: int,
-        d_model: int,
-        n_head: int,
-        dim_feedforward: int,
-        n_layers: int,
-        max_seq_length: int,
-        dropout: float = 0,
+            self,
+            vocab_size: int,
+            d_model: int,
+            n_head: int,
+            dim_feedforward: int,
+            n_layers: int,
+            max_seq_length: int,
+            dropout: float = 0,
     ):
         super(TransformerModel, self).__init__()
         self.model_type = "Transformer"
@@ -132,4 +132,3 @@ class TransformerModel(nn.Module):
         x = self.fc(x)
         x = x.sum(dim_len) / seq_len
         return x
-        return x[:, -1, :]
