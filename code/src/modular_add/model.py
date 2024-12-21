@@ -147,4 +147,3 @@ class TransformerModel(nn.Module):
         x = self.fc(x)
         x = x.sum(dim_len) / seq_len
         return x
-        return x[:, -1, :]

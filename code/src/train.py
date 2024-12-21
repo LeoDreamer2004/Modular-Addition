@@ -1,5 +1,5 @@
 from sklearn.model_selection import train_test_split
-from torch import nn, optim
+from torch import nn, optim, Tensor
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
@@ -50,14 +50,12 @@ def save_model(model: nn.Module):
     torch.save(model.state_dict(), Param.MODEL_PATH)
 
 
-def accuracy(data_loader: DataLoader, model: nn.Module):
+def accuracy(label: Tensor, target: Tensor, model: nn.Module):
     with torch.no_grad():
-        correct = 0
-        for lhs, rhs in data_loader:  # full-batch
-            output = model.forward(lhs)
-            _, predicted = torch.max(output, 1)
-            correct += (predicted == rhs).sum().item()  # Type: ignore
-        return correct / len(data_loader.dataset)  # Type: ignore
+        output = model.forward(label)
+        _, predicted = torch.max(output, 1)
+        correct = (predicted == target).sum().item()  # Type: ignore
+        return correct / target.size(0)
 
 
 def train():
@@ -69,7 +67,10 @@ def train():
     print("Dataset initialized. Data size:", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
-    test_dataloader = DataLoader(test_data, batch_size=len(test_data), shuffle=True)  # full-batch
+    train_label = torch.stack([lhs for lhs, _ in train_data]).to(DEVICE)
+    train_target = torch.stack([rhs for _, rhs in train_data]).to(DEVICE)
+    test_label = torch.stack([lhs for lhs, _ in test_data]).to(DEVICE)
+    test_target = torch.stack([rhs for _, rhs in test_data]).to(DEVICE)
 
     # Prepare model
     model = get_model(len(dataset.tokenizer))
@@ -99,8 +100,8 @@ def train():
             losses.append(epoch_loss)
 
             if (epoch + 1) % Param.LOG_INTERVAL == 0:
-                train_accuracy = accuracy(train_dataloader, model)
-                test_accuracy = accuracy(test_dataloader, model)
+                train_accuracy = accuracy(train_label, train_target, model)
+                test_accuracy = accuracy(test_label, test_target, model)
                 train_accuracy_list.append(train_accuracy)
                 test_accuracy_list.append(test_accuracy)
                 print(
