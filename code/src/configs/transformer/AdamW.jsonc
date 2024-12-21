@@ -4,8 +4,6 @@
     "scheduler": "lambda",
     "lambda_lr_func": "decay_transformer",
     "modulus": 97,
-    "scheduler": "lambda",
-    "lambda_lr_func": "decay_transformer",
     "epoch_num": 1500,
     "lr": 0.001,
     "batch_size": 256,
