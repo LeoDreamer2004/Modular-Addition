@@ -23,6 +23,7 @@ def seed():
     random.seed(Param.SEED)
 
 
+
 def save_model(model: nn.Module):
     if not os.path.exists(os.path.dirname(Param.MODEL_PATH)):
         os.makedirs(os.path.dirname(Param.MODEL_PATH))
