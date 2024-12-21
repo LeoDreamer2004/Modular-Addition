@@ -9,7 +9,7 @@ import random
 import os
 
 from modular_add.data import AlgorithmDataSet
-from modular_add.model import MLPModel, TransformerModel
+from modular_add.model import MLPModel, TransformerModel, LSTMModel
 from modular_add.params import *
 
 
@@ -29,6 +29,8 @@ def get_model(n_token: int) -> nn.Module:
             ).to(DEVICE)
         case "mlp":
             return MLPModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+        case "lstm":
+            return LSTMModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
 
 
 def get_optimizer(model: nn.Module) -> optim.Optimizer:
