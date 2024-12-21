@@ -5,9 +5,9 @@ from train import train
 
 def init_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--p", type=str, help="The path to the params")
+    parser.add_argument("--param", "-p", dest="param", type=str, help="The path to the params")
     namespace = parser.parse_args()
-    path = namespace.p
+    path = namespace.param
     load_params(path)
 
 

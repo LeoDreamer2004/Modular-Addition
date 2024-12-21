@@ -1,6 +1,6 @@
 {
     "model_path": "../model/transformer.pth",
-    "optimizer": "adam",
+    "optimizer": "AdamW",
     "modulus": 97,
     "seed": 0,
     "epoch_num": 5000,

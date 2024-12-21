@@ -32,7 +32,7 @@ def get_model(n_token: int) -> nn.Module:
 
 def get_optimizer(model: nn.Module) -> optim.Optimizer:
     print("Using optimizer:", Param.OPTIMIZER)
-    match Param.OPTIMIZER:
+    match Param.OPTIMIZER.lower():
         case "adam":
             return optim.Adam(model.parameters(), lr=Param.LR)
         case "adamw":
@@ -52,7 +52,7 @@ def accuracy(data_loader: DataLoader, model: nn.Module):
             output = model.forward(lhs)
             _, predicted = torch.max(output, 1)
             correct += (predicted == rhs).sum().item()  # Type: ignore
-        return correct / len(data_loader.dataset)
+        return correct / len(data_loader.dataset)  # Type: ignore
 
 
 def train():
