@@ -19,6 +19,7 @@ def seed():
     np.random.seed(Param.SEED)
     random.seed(Param.SEED)
 
+
 def save_model(model: nn.Module):
     if not os.path.exists(os.path.dirname(Param.MODEL_PATH)):
         os.makedirs(os.path.dirname(Param.MODEL_PATH))
@@ -102,7 +103,7 @@ def train():
     # Save figures
     if not os.path.exists(Param.FIGURE_SAVE_PATH):
         os.makedirs(Param.FIGURE_SAVE_PATH)
-    suffix = f"{Param.MODEL}-{Param.OPTIMIZER}-{Param.TEST_ALPHA}"
+    suffix = f"{Param.MODEL.lower()}-{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
