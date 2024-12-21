@@ -1,6 +1,7 @@
 {
     "model": "mlp",
     "optim": "adamw",
+    "weight_decay": 0.001,
     "model_path": "../model/mlp.pth",
     "modulus": 97,
     "seed": 0,
