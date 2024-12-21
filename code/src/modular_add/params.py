@@ -31,9 +31,10 @@ class Param:
     OPTIMIZER: str = "adam"
     WEIGHT_DECAY: float = 0.
     MAX_GRAD_NORM: float = float("inf")
+    MOMENTUM : float = 0.9
     
     # scheduler
-    SCHEDULER = "step"
+    SCHEDULER = "constant"
     STEP_LR_STEP_SIZE: int = 100
     STEP_LR_GAMMA: float = 0.98
     LAMBDA_LR_FUNC: str = "decay_1"
