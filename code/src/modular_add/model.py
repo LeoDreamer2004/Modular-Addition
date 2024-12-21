@@ -44,14 +44,21 @@ class LSTMModel(nn.Module):
     def __init__(self, vocab_size: int, n_layers: int, input_size: int = 128, hidden_size: int = 256):
         super(LSTMModel, self).__init__()
         self.model_type = "LSTM"
-        self.token_embedding = nn.Linear(4 * vocab_size, input_size)
+        self.token_embedding = nn.Linear(vocab_size, input_size)
         self.lstm = nn.LSTM(input_size, hidden_size, n_layers, batch_first=True)
         self.fc = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
-        x = self.token_embedding(src.reshape(src.shape[0], -1))
+        x = self.token_embedding(src)
         x, _ = self.lstm(x)
+        if len(src.size()) == 2:
+            seq_len = src.size(0)
+            dim_len = 0
+        else:
+            seq_len = src.size(1)
+            dim_len = 1
         x = self.fc(x)
+        x = x.sum(dim_len) / seq_len
         return x
 
 

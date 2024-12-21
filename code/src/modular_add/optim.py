@@ -18,6 +18,8 @@ def get_optimizer(model: nn.Module) -> optim.Optimizer:
 def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
     print("Using scheduler:", Param.SCHEDULER)
     match Param.SCHEDULER.lower():
+        case "constant":
+            return lr_scheduler.ConstantLR(optimizer)
         case "step":
             return lr_scheduler.StepLR(
                 optimizer, step_size=Param.STEP_LR_STEP_SIZE, gamma=Param.STEP_LR_GAMMA
@@ -37,4 +39,4 @@ def decay_transformer(e):
 
 
 def decay_lstm(e):
-    return 1 / (1 + e) ** 0.1
+    return 1 / (1 + e) ** 0.04
