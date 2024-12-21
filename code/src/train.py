@@ -102,14 +102,15 @@ def train():
     print("Model saved at", Param.MODEL_PATH)
 
     # Save figures
-    if not os.path.exists(Param.FIGURE_SAVE_PATH):
-        os.makedirs(Param.FIGURE_SAVE_PATH)
-    suffix = f"{Param.MODEL.lower()}-{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
+    save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
     plt.plot(losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"loss-{suffix}.png"))
+    plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"))
     plt.clf()
     x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
     if len(x) > len(train_accuracy_list):
@@ -120,5 +121,5 @@ def train():
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig(os.path.join(Param.FIGURE_SAVE_PATH, f"accuracy-{suffix}.png"))
-    print("Figures saved at", Param.FIGURE_SAVE_PATH)
+    plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"))
+    print("Figures saved at", save_path)
