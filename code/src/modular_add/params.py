@@ -1,7 +1,4 @@
 import torch
-import json
-import math
-import re
 from dataclasses import dataclass
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,7 +29,7 @@ class Param:
     WEIGHT_DECAY: float = 0.
     STEP_LR_STEP_SIZE: int = 100
     STEP_LR_GAMMA: float = 0.98
-    MAX_GRAD_NORM: float = math.inf
+    MAX_GRAD_NORM: float = float("inf")
 
     # model
     N_LAYERS: int = 4
@@ -48,13 +45,16 @@ class Param:
     HIDDEN_SIZE: int = 256
 
 
-def remove_comments(json_like):
-    json_like = re.sub(r'//.*', '', json_like)
-    json_like = re.sub(r'/\*.*?\*/', '', json_like, flags=re.DOTALL)
-    return json_like
-
-
 def load_params(path=None):
+
+    import json
+    import re
+
+    def remove_comments(json_like):
+        json_like = re.sub(r'//.*', '', json_like)
+        json_like = re.sub(r'/\*.*?\*/', '', json_like, flags=re.DOTALL)
+        return json_like
+
     if path is None:
         return
     with open(path) as f:
