@@ -11,6 +11,8 @@ from torch.utils.data import DataLoader
 from modular_add.data import AlgorithmDataSet
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
+from modular_add.model import get_model
+from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
 
 
