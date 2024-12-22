@@ -1,12 +1,14 @@
+import math
+
 import torch
-from torch import nn, optim
+from torch import nn, optim, Tensor
 from torch.optim import lr_scheduler
 
 from modular_add.params import Param
 
 
 class SignSGD(optim.Optimizer):
-    def __init__(self, params, lr=0.01, weight_decay=0):
+    def __init__(self, params, lr=0.01, weight_decay: float = 0):
         defaults = dict(lr=lr, weight_decay=weight_decay)
         super(SignSGD, self).__init__(params, defaults)
 
@@ -24,13 +26,13 @@ class SignSGD(optim.Optimizer):
             for p in group['params']:
                 if p.grad is None:
                     continue
-                d_p = p.grad
+                grad_p: Tensor = p.grad
 
                 if weight_decay != 0:
-                    d_p = d_p.add(p, alpha=weight_decay)
+                    grad_p = grad_p.add(p, alpha=weight_decay)
 
                 # Update using the sign of the gradient
-                p.add_(d_p.sign(), alpha=-lr)
+                p.add_(grad_p.sign(), alpha=-lr)
 
         return loss
 
@@ -72,7 +74,9 @@ def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
         case "lambda":
             return lr_scheduler.LambdaLR(optimizer, eval(Param.LAMBDA_LR_FUNC))
         case "constant":
-            return lr_scheduler.ConstantLR(optimizer)
+            return lr_scheduler.ConstantLR(optimizer, factor=1)
+        case "cosine":
+            return lr_scheduler.CosineAnnealingLR(optimizer, T_max=Param.T_MAX, eta_min=Param.MIN_LR)
 
 
 def decay_mlp(e):
@@ -80,7 +84,16 @@ def decay_mlp(e):
 
 
 def decay_transformer(e):
-    return 1 / (1 + e) ** 0.2
+    return 1 / (1 + e) ** 0.15 if e < 1500 else 1 / (e + 1) ** 0.3
+
+
+def decay_sign_transformer(e):
+    if e < 1500:
+        return 0.95 ** (e // 10)
+    return 0.9 ** (e // 10)
+    # if e < 2500:
+    #     return 0.99 ** (1 + e / 10)
+    # return 0.99 ** (1 + e / 5)
 
 
 def decay_transformer_sgd(e):

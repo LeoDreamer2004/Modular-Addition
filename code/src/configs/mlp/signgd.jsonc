@@ -1,7 +1,7 @@
 {
-    // Running on ArchLinux with Python 3.12.7 torch 2.5.1
+    // Running on Windows
     "model": "mlp",
-    "optimizer": "adam",
+    "optimizer": "signgd",
     "weight_decay": 0.001,
     "model_path": "../model/mlp.pth",
     "modulus": 97,
@@ -13,5 +13,6 @@
     "step_lr_step_size": 100,
     "step_lr_gamma": 0.98,
     "hidden_size": 256,
+    "log_interval": 1,
     "n_layers": 7
 }

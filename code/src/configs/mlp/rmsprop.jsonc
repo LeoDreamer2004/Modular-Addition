@@ -1,8 +1,7 @@
 {
   // Running on Windows
   "model": "mlp",
-  "optimizer": "signgd",
-  "weight_decay": 0.001,
+  "optimizer": "rmsprop",
   "model_path": "../model/mlp.pth",
   "modulus": 97,
   "seed": 1,
@@ -12,6 +11,5 @@
   "test_alpha": 0.5,
   "step_lr_step_size": 100,
   "step_lr_gamma": 0.98,
-  "hidden_size": 256,
-  "n_layers": 7
+  "hidden_size": 256
 }

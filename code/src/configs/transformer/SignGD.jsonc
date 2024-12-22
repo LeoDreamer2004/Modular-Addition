@@ -1,0 +1,22 @@
+{
+    "model_path": "../model/transformer.pth",
+    "optimizer": "SignGD",
+    //    "scheduler": "step",
+    //    "lambda_lr_func": "decay_sign_transformer",
+    //    "scheduler_step_size": 100,
+    //    "scheduler_step_size": 100,
+    "modulus": 97,
+    "epoch_num": 3500,
+    "lr": 0.0008,
+    "seed": 0,
+    "batch_size": 512,
+    "test_alpha": 0.5,
+    "d_model": 512,
+    "n_head": 4,
+    "dim_feedforward": 256,
+    "n_layers": 1,
+    "max_seq_length": 6,
+    "dropout": 0,
+    "log_interval": 1,
+    "save_interval": 1000
+}

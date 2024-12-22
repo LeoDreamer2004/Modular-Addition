@@ -32,6 +32,8 @@ class Param:
     WEIGHT_DECAY: float = 0.
     MAX_GRAD_NORM: float = float("inf")
     MOMENTUM: float = 0.9
+    T_MAX: int = 1000,
+    MIN_LR: float = 0.
     RMSPROP_ALPHA: float = 0.99
     RMSPROP_MOMENTUM: float = 0.9
 
@@ -50,9 +52,6 @@ class Param:
 
     # mlp
     HIDDEN_SIZE: int = 256
-
-    # draw
-    DRAW_CLIP: int = 0
 
 
 def load_params(path=None):

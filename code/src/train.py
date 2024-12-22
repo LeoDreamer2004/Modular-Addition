@@ -7,6 +7,7 @@ from sklearn.model_selection import train_test_split
 from torch import nn, Tensor
 from torch.nn.utils import clip_grad_norm_
 from torch.utils.data import DataLoader
+import torch.nn.functional as F
 
 from modular_add.data import AlgorithmDataSet
 from modular_add.model import get_model
@@ -31,8 +32,9 @@ def accuracy(label: Tensor, target: Tensor, model: nn.Module):
     with torch.no_grad():
         output = model.forward(label)
         _, predicted = torch.max(output, 1)
+        loss = F.cross_entropy(output, target)
         correct = (predicted == target).sum().item()  # Type: ignore
-        return correct / target.size(0)
+        return loss.item(), correct / target.size(0)
 
 
 def train():
@@ -55,8 +57,9 @@ def train():
     scheduler = get_scheduler(optimizer)
     criterion = nn.CrossEntropyLoss()
 
-    losses = []
+    train_losses = []
     train_accuracy_list = []
+    test_losses = []
     test_accuracy_list = []
     trained_epoch = 0
 
@@ -74,13 +77,14 @@ def train():
                 clip_grad_norm_(model.parameters(), Param.MAX_GRAD_NORM)
                 optimizer.step()
             scheduler.step()
-            losses.append(epoch_loss)
 
             if (epoch + 1) % Param.LOG_INTERVAL == 0:
-                train_accuracy = accuracy(train_label, train_target, model)
-                test_accuracy = accuracy(test_label, test_target, model)
+                train_loss, train_accuracy = accuracy(train_label, train_target, model)
+                test_loss, test_accuracy = accuracy(test_label, test_target, model)
                 train_accuracy_list.append(train_accuracy)
                 test_accuracy_list.append(test_accuracy)
+                train_losses.append(train_loss)
+                test_losses.append(test_loss)
                 print(
                     f"Epoch: {epoch + 1}",
                     f"Loss: {epoch_loss:.6e}",
@@ -102,32 +106,26 @@ def train():
     print("Model saved at", Param.MODEL_PATH)
 
     # Save figures
-    if trained_epoch < Param.DRAW_CLIP:
-        print("No figures to draw.")
-        return
     save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
-    x = range(Param.DRAW_CLIP, len(losses))
-    losses = losses[Param.DRAW_CLIP:]
-    plt.plot(x, losses)
+    x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
+    x = x[:len(train_accuracy_list)]
+    plt.plot(x, train_losses, label="train")
+    plt.plot(x, test_losses, label="test")
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
     plt.yscale("log")
-    plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"))
+    plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"), dpi=300)
     plt.clf()
-    x_start = Param.LOG_INTERVAL + Param.DRAW_CLIP
-    train_accuracy_list = train_accuracy_list[Param.DRAW_CLIP // Param.LOG_INTERVAL:]
-    test_accuracy_list = test_accuracy_list[Param.DRAW_CLIP // Param.LOG_INTERVAL:]
-    x = range(x_start, trained_epoch + 1, Param.LOG_INTERVAL)
-    x = x[:len(train_accuracy_list)]
+
     plt.plot(x, train_accuracy_list, label="train")
     plt.plot(x, test_accuracy_list, label="test")
     plt.xlabel("Epoch")
     plt.ylabel("Accuracy")
     plt.legend()
     plt.xscale("log")
-    plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"))
+    plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"), dpi=300)
     print("Figures saved at", save_path)
