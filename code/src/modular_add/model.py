@@ -15,27 +15,30 @@ def get_model(n_token: int) -> nn.Module:
                 max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
             ).to(DEVICE)
         case "mlp":
-            return MLPModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+            return MLPModel(n_token, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
         case "lstm":
             return LSTMModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
 
 
 class MLPModel(nn.Module):
-    def __init__(self, vocab_size: int, n_layers: int, hidden_size: int = 256):
+    def __init__(self, vocab_size: int, hidden_size: int = 256):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
         # TODO: Better embedding
         self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
-        self.hidden = nn.ModuleList(
-            [nn.Sequential(nn.Linear(hidden_size, hidden_size), nn.ReLU())
-             for _ in range(n_layers)]
+        self.hidden = nn.Sequential(
+            nn.Linear(hidden_size, hidden_size // 2),
+            nn.ReLU(),
+            nn.Linear(hidden_size // 2, hidden_size // 2),
         )
-        self.fc = nn.Linear(hidden_size, vocab_size)
+        self.layer_norm = nn.LayerNorm(hidden_size // 2)
+        self.fc = nn.Linear(hidden_size // 2, vocab_size, bias=False)
 
     def forward(self, src: Tensor) -> Tensor:
         x = self.token_embedding(src.reshape(src.shape[0], -1))
         for layer in self.hidden:
             x = layer(x)
+        x = self.layer_norm(x)
         x = self.fc(x)
         return x
 

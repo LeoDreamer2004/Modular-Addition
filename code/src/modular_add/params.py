@@ -37,7 +37,7 @@ class Param:
     SCHEDULER = "constant"
     STEP_LR_STEP_SIZE: int = 100
     STEP_LR_GAMMA: float = 0.98
-    LAMBDA_LR_FUNC: str = "decay_1"
+    LAMBDA_LR_FUNC: str = "decay_transformer"
 
     # transformer
     D_MODEL: int = 16
@@ -48,6 +48,9 @@ class Param:
 
     # mlp
     HIDDEN_SIZE: int = 256
+
+    # draw
+    DRAW_CLIP: int = 0
 
 
 def load_params(path=None):

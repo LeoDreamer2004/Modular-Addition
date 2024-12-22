@@ -2,10 +2,12 @@
     "model_path": "../model/transformer.pth",
     "optimizer": "SGD",
     "modulus": 97,
-    "scheduler": "lambda",
-    "lambda_lr_func": "decay_transformer_sgd",
-    "epoch_num": 15000,
-    "lr": 0.1,
+    "scheduler": "step",
+    "step_lr_step_size": 150,
+    "step_lr_gamma": 0.99,
+    "epoch_num": 1500,
+    "draw_clip": 100,
+    "lr": 0.06,
     "batch_size": 256,
     "test_alpha": 0.5,
     "d_model": 256,
@@ -14,8 +16,7 @@
     "n_layers": 2,
     "max_seq_length": 6,
     "dropout": 0,
-    "log_interval": 10,
-    "save_interval": 1000
-    // Gradient clipping
-    //    "max_grad_norm": 3
+    "log_interval": 1,
+    "save_interval": 1000,
+    "max_grad_norm": 5
 }

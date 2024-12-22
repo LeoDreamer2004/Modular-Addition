@@ -31,11 +31,11 @@ def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
 
 
 def decay_mlp(e):
-    return 1 / (1 + e) ** 0.05
+    return 1 / (1 + e) ** 0.3
 
 
 def decay_transformer(e):
-    return 1 / (1 + e) ** 0.055
+    return 1 / (1 + e) ** 0.2
 
 
 def decay_transformer_sgd(e):

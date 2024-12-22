@@ -11,8 +11,6 @@ from torch.utils.data import DataLoader
 from modular_add.data import AlgorithmDataSet
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
-from modular_add.model import get_model
-from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
 
 
@@ -21,7 +19,6 @@ def seed():
     torch.cuda.manual_seed(Param.SEED)
     np.random.seed(Param.SEED)
     random.seed(Param.SEED)
-
 
 
 def save_model(model: nn.Module):
@@ -105,19 +102,27 @@ def train():
     print("Model saved at", Param.MODEL_PATH)
 
     # Save figures
+    if trained_epoch < Param.DRAW_CLIP:
+        print("No figures to draw.")
+        return
     save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
     if not os.path.exists(save_path):
         os.makedirs(save_path)
     suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
-    plt.plot(losses)
+    x = range(Param.DRAW_CLIP, len(losses))
+    losses = losses[Param.DRAW_CLIP:]
+    plt.plot(x, losses)
     plt.xlabel("Epoch")
     plt.ylabel("Loss")
     plt.xscale("log")
+    plt.yscale("log")
     plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"))
     plt.clf()
-    x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
-    if len(x) > len(train_accuracy_list):
-        x = x[:len(train_accuracy_list)]
+    x_start = Param.LOG_INTERVAL + Param.DRAW_CLIP
+    train_accuracy_list = train_accuracy_list[Param.DRAW_CLIP // Param.LOG_INTERVAL:]
+    test_accuracy_list = test_accuracy_list[Param.DRAW_CLIP // Param.LOG_INTERVAL:]
+    x = range(x_start, trained_epoch + 1, Param.LOG_INTERVAL)
+    x = x[:len(train_accuracy_list)]
     plt.plot(x, train_accuracy_list, label="train")
     plt.plot(x, test_accuracy_list, label="test")
     plt.xlabel("Epoch")
