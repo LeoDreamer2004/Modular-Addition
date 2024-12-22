@@ -32,6 +32,8 @@ class Param:
     WEIGHT_DECAY: float = 0.
     MAX_GRAD_NORM: float = float("inf")
     MOMENTUM: float = 0.9
+    RMSPROP_ALPHA: float = 0.99
+    RMSPROP_MOMENTUM: float = 0.9
 
     # scheduler
     SCHEDULER = "constant"
