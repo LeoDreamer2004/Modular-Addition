@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.model_selection import train_test_split
 from torch import nn, Tensor
-from torch.nn.utils import clip_grad_norm_
+from torch.nn.utils import clip_grad_norm_, clip_grad_value_
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 
@@ -75,6 +75,7 @@ def train():
                 epoch_loss += loss.item()
                 loss.backward()
                 clip_grad_norm_(model.parameters(), Param.MAX_GRAD_NORM)
+                clip_grad_value_(model.parameters(), Param.MAX_GRAD_VALUE)
                 optimizer.step()
             scheduler.step()
 

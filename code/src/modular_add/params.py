@@ -31,6 +31,7 @@ class Param:
     OPTIMIZER: str = "adam"
     WEIGHT_DECAY: float = 0.
     MAX_GRAD_NORM: float = float("inf")
+    MAX_GRAD_VALUE: float = float("inf")
     MOMENTUM: float = 0.9
     T_MAX: int = 1000,
     MIN_LR: float = 0.

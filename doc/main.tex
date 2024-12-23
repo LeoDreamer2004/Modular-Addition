@@ -1,0 +1,63 @@
+\documentclass{article}
+
+\usepackage[final]{neurips_2022}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+\title{Final Project Report}
+
+\author{
+    Author1 \\
+    \texttt{email} \\
+    \And
+    Author2 \\
+    \texttt{email} \\
+    \And
+    Author3 \\
+    \texttt{email} \\
+}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with diffferent models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
+\end{abstract}
+
+\section{Introduction}
+
+Unlike classical learning theory, which often predicts that overparameterized models should overfit, modern neural networks frequently exhibit remarkable generalization abilities. The paper introduced a novel concept called "grokking," where neural networks demonstrate a sudden improvement in generalization performance long after they have already overfit the training data.
+
+In this report, we aim to replicate the key findings of the original paper, focusing on the phenomenon of grokking and the factors that influence it. By training different neural networks to learn modular addition $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$ where $p$ is a prime number, we investigate how the choice of model architecture, train-test split, optimizer, and regularization techniques affect the grokking phenomenon and give a possible explanation for it.
+
+\section{Methodology}
+
+We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
+
+In this project, we train Transformer, MLP, and LSTM models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $40\%$, $30\%$ and $20\%$ train data percentage.
+% TODO
+
+\section{Experiments and Results}
+
+\subsection{Grokking on Transformer Model}
+
+\subsection{Grokking on MLP and LSTM Model}
+
+\subsection{Impact of Optimizers and Regularization Techniques}
+
+\section{Explanation of Grokking Phenomena}
+
+\appendix
+
+\section{Appendix}
+
+\end{document}

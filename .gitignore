@@ -2,3 +2,10 @@ __pycache__/
 .idea/
 .vscode/
 **/model
+
+### LaTeX ###
+*.aux
+*.log
+*.pdf
+*.synctex.gz
+*.out
