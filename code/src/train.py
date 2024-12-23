@@ -118,6 +118,7 @@ def train():
     plt.ylabel("Loss")
     plt.xscale("log")
     plt.yscale("log")
+    plt.legend()
     plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"), dpi=300)
     plt.clf()
 

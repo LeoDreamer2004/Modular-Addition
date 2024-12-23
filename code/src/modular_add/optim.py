@@ -1,5 +1,3 @@
-import math
-
 import torch
 from torch import nn, optim, Tensor
 from torch.optim import lr_scheduler
@@ -85,15 +83,6 @@ def decay_mlp(e):
 
 def decay_transformer(e):
     return 1 / (1 + e) ** 0.15 if e < 1500 else 1 / (e + 1) ** 0.3
-
-
-def decay_sign_transformer(e):
-    if e < 1500:
-        return 0.95 ** (e // 10)
-    return 0.9 ** (e // 10)
-    # if e < 2500:
-    #     return 0.99 ** (1 + e / 10)
-    # return 0.99 ** (1 + e / 5)
 
 
 def decay_transformer_sgd(e):

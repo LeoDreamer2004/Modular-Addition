@@ -12,19 +12,20 @@ def get_model(n_token: int) -> nn.Module:
         case "transformer":
             return TransformerModel(
                 n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
-                max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD
+                max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD, dropout=Param.DROPOUT
             ).to(DEVICE)
         case "mlp":
             return MLPModel(n_token, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
         case "lstm":
-            return LSTMModel(n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+            return LSTMModel(
+                n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE, dropout=Param.DROPOUT
+            ).to(DEVICE)
 
 
 class MLPModel(nn.Module):
     def __init__(self, vocab_size: int, hidden_size: int = 256):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
-        # TODO: Better embedding
         self.token_embedding = nn.Linear(4 * vocab_size, hidden_size)
         self.hidden = nn.Sequential(
             nn.Linear(hidden_size, hidden_size // 2),
@@ -44,22 +45,26 @@ class MLPModel(nn.Module):
 
 
 class LSTMModel(nn.Module):
-    def __init__(self, vocab_size: int, n_layers: int, input_size: int = 128, hidden_size: int = 256):
+    def __init__(self, vocab_size: int, n_layers: int, input_size: int = 128, hidden_size: int = 256,
+                 dropout: float = 0):
         super(LSTMModel, self).__init__()
         self.model_type = "LSTM"
         self.token_embedding = nn.Linear(vocab_size, input_size)
-        self.lstm = nn.LSTM(input_size, hidden_size, n_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, n_layers, batch_first=True, dropout=dropout)
+        self.layer_norm = nn.LayerNorm(hidden_size)
         self.fc = nn.Linear(hidden_size, vocab_size)
 
     def forward(self, src: Tensor) -> Tensor:
-        x = self.token_embedding(src)
-        x, _ = self.lstm(x)
         if len(src.size()) == 2:
             seq_len = src.size(0)
             dim_len = 0
         else:
             seq_len = src.size(1)
             dim_len = 1
+
+        x = self.token_embedding(src)
+        x, _ = self.lstm(x)
+        x = self.layer_norm(x)
         x = self.fc(x)
         x = x.sum(dim_len) / seq_len
         return x
