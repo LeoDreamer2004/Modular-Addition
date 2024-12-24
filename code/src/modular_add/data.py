@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -56,12 +58,13 @@ class AlgorithmDataSet(Dataset):
     """
     Modular addition dataset
 
-    input: "a + b ="            encoded shape: (4, vocab_size)  (one-hot encoding)
-    output: (a + b) % modulus   encoded shape: ()  (index)
+    input: "x_1 + x_2 + ... + x_k ="            encoded shape: (4, vocab_size)  (one-hot encoding)
+    output: (x_1 + x_2 + ... + x_k) % modulus   encoded shape: ()  (index)
     """
 
-    def __init__(self, modulus: int):
+    def __init__(self, modulus: int, num_adder: int = 2):
         self.modulus = modulus
+        self.num_adder = num_adder
         self.tokenizer = AlgorithmDataTokenizer(modulus)
         lhs, rhs = self.make_data()
         self.lhs = [self.tokenizer.encode(d).to(DEVICE) for d in lhs]
@@ -73,8 +76,30 @@ class AlgorithmDataSet(Dataset):
     def __getitem__(self, idx):
         return self.lhs[idx], self.rhs[idx]
 
+    @staticmethod
+    def data_maker(n: int, modulus: int) -> List[Tuple]:
+        if n <= 0:
+            raise ValueError("number of adders should be more than 0.")
+        if n == 1:
+            return [(i,) for i in range(modulus)]
+        results = []
+        temp = AlgorithmDataSet.data_maker(n - 1, modulus)
+        for i in range(modulus):
+            for item in temp:
+                results.append((*item, i))
+        return results
+
     def make_data(self):
-        nums = self.tokenizer.nums
-        lhs = [f"{a} + {b} =" for a in nums for b in nums]
-        rhs = [str((a + b) % self.modulus) for a in nums for b in nums]
+        all_nums = self.data_maker(self.num_adder, self.modulus)
+        lhs = []
+        rhs = []
+        for nums in all_nums:
+            rhs_sum = 0
+            lhs_str = ""
+            for num in nums:
+                rhs_sum += num
+                lhs_str += f"{num} + "
+            lhs_str = lhs_str[:-2] + "="
+            lhs.append(lhs_str)
+            rhs.append(str(rhs_sum % self.modulus))
         return lhs, rhs

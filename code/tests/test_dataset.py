@@ -1,20 +1,38 @@
 from torch.utils.data import DataLoader
 
 from modular_add.data import AlgorithmDataSet
+from modular_add.params import DEVICE
 
 
 def get_nums(lhs: str):
     return int(lhs.split()[0]), int(lhs.split()[2])
 
 
+def get_nums4(lhs: str):
+    lhs = lhs.split()
+    return int(lhs[0]), int(lhs[2]), int(lhs[4]), int(lhs[6])
+
+
 def test_dataset():
     dataset = AlgorithmDataSet(13)
     for i in range(len(dataset)):
         lhs, rhs = dataset[i]
+        assert (lhs[-1] == dataset.tokenizer.encode("=").to(DEVICE)).all()  # Type: ignore
         lhs = dataset.tokenizer.decode(lhs)
-        # rhs = dataset.tokenizer.decode(rhs)
+        assert lhs[-1] == "="
         num1, num2 = get_nums(lhs)
         assert (num1 + num2) % 13 == int(rhs)
+
+
+def test_dataset_more_nums():
+    dataset = AlgorithmDataSet(7, 4)
+    assert len(dataset) == 7 ** 4
+    for i in range(len(dataset)):
+        lhs, rhs = dataset[i]
+        lhs = dataset.tokenizer.decode(lhs)
+        assert lhs[-1] == "="
+        n1, n2, n3, n4 = get_nums4(lhs)
+        assert (n1 + n2 + n3 + n4) % 7 == int(rhs)
 
 
 def test_dataloader():
