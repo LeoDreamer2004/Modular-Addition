@@ -1,9 +1,10 @@
 {
     "model_path": "../model/transformer.pth",
     "optimizer": "AdamW",
+    "use_tf32": true,
     "scheduler": "step",
     "scheduler_step_size": 100,
-    "scheduler_gamma": 0.9,
+    "scheduler_gamma": 0.99,
     "modulus": 97,
     "epoch_num": 5000,
     "lr": 0.0004,
