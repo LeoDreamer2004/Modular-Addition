@@ -6,7 +6,7 @@ Gives a simple implementation of Transformer model, as a recurrence to Grokking 
 
 ## TODOS
 
-- [ ] Rerun transformer-SGD-0.5
+- [x] Rerun transformer-SGD-0.5
 - [ ] Transformer-RMSProp-0.5
 - [ ] Transformer-Adam-0.5
 - [ ] Transformer-AdamW-0.5 with dropout

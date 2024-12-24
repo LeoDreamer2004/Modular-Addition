@@ -3,6 +3,7 @@ import random
 
 import matplotlib.pyplot as plt
 import numpy as np
+import torch.backends.cudnn
 from sklearn.model_selection import train_test_split
 from torch import nn, Tensor
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
@@ -15,10 +16,12 @@ from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
 
 
-def seed():
+def setup():
     torch.manual_seed(Param.SEED)
     torch.cuda.manual_seed(Param.SEED)
     np.random.seed(Param.SEED)
+    torch.backends.cuda.matmul.allow_tf32 = True
+    torch.backends.cudnn.allow_tf32 = True
     random.seed(Param.SEED)
 
 
@@ -42,7 +45,7 @@ def accuracy(label: Tensor, target: Tensor, model: nn.Module):
 
 
 def train():
-    seed()
+    setup()
 
     # Initialize data
     dataset = AlgorithmDataSet(Param.MODULUS, Param.NUM_ADDER)
@@ -50,7 +53,10 @@ def train():
     print("Dataset initialized. Data size:", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
+
     # FIXME: If not preload to device, rewrite the code, see `Param.PRELOAD_TO_DEVICE`
+    # Don't using Dataloader to avoid random action when calculating accuracy
+    # Otherwise, the result may not be reproducible with different log interval
     train_label = torch.stack([lhs for lhs, _ in train_data]).to(DEVICE)
     train_target = torch.stack([rhs for _, rhs in train_data]).to(DEVICE)
     test_label = torch.stack([lhs for lhs, _ in test_data]).to(DEVICE)
@@ -78,8 +84,8 @@ def train():
             epoch_loss = 0
             for lhs, rhs in train_dataloader:
                 if not Param.PRELOAD_TO_DEVICE:
-                    lhs = lhs.to(DEVICE, copy=True)
-                    rhs = rhs.to(DEVICE, copy=True)
+                    lhs = lhs.to(DEVICE)
+                    rhs = rhs.to(DEVICE)
 
                 optimizer.zero_grad()
                 output = model.forward(lhs)  # Type: ignore
