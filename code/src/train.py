@@ -28,6 +28,10 @@ def save_model(model: nn.Module):
     torch.save(model.state_dict(), Param.MODEL_PATH)
 
 
+def load_model(model: nn.Module):
+    model.load_state_dict(torch.load(Param.MODEL_PATH, weights_only=True))
+
+
 def accuracy(label: Tensor, target: Tensor, model: nn.Module):
     with torch.no_grad():
         output = model.forward(label)
@@ -62,6 +66,10 @@ def train():
     test_losses = []
     test_accuracy_list = []
     trained_epoch = 0
+
+    if Param.LOAD_MODEL:
+        load_model(model)
+        print("Model loaded from", Param.MODEL_PATH)
 
     # Start training
     try:

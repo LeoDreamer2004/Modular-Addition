@@ -9,6 +9,7 @@ class Param:
     ### Environment ###
     MODEL: str = "transformer"
     MODEL_PATH: str = "../model/transformer.pth"
+    LOAD_MODEL: bool = False
     FIGURE_SAVE_PATH: str = "../fig/"
     MODULUS: int = 97
     SEED: int = 0

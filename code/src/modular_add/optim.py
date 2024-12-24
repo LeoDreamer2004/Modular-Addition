@@ -77,23 +77,9 @@ def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
             return lr_scheduler.CosineAnnealingLR(optimizer, T_max=Param.T_MAX, eta_min=Param.MIN_LR)
 
 
-def decay_mlp(e):
-    return 1 / (1 + e) ** 0.3
-
-
-def decay_transformer(e):
-    return 1 / (1 + e) ** 0.15 if e < 1500 else 1 / (e + 1) ** 0.3
-
-
-def decay_transformer_sgd(e):
-    if e <= 500:
+def transformer_sgd(e):
+    if e < 600:
         return 1
-    return 1 / (e - 500) ** 0.1
-
-
-def decay_transformer_sgd_grok(e):
-    return 1 / (e + 1) ** 0.08
-
-
-def decay_lstm(e):
-    return 1 / (1 + e) ** 0.04
+    elif e < 4000:
+        return 1.02 ** ((e - 600) // 10)
+    return (1.02 ** 340) * 1.002 ** ((e - 4000) // 10)

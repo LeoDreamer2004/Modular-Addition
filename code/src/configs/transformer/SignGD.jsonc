@@ -1,10 +1,6 @@
 {
     "model_path": "../model/transformer.pth",
     "optimizer": "SignGD",
-    //    "scheduler": "step",
-    //    "lambda_lr_func": "decay_sign_transformer",
-    //    "scheduler_step_size": 100,
-    //    "scheduler_step_size": 100,
     "modulus": 97,
     "epoch_num": 3500,
     "lr": 0.0008,
