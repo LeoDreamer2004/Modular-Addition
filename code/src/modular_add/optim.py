@@ -83,3 +83,9 @@ def transformer_sgd(e):
     elif e < 4000:
         return 1.02 ** ((e - 600) // 10)
     return (1.02 ** 340) * 1.002 ** ((e - 4000) // 10)
+
+
+def transformer_adam(e):
+    if e < 500:
+        return 1
+    return 1.02 ** ((e - 1000) // 10)
