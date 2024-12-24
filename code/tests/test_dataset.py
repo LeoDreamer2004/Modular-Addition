@@ -25,14 +25,15 @@ def test_dataset():
 
 
 def test_dataset_more_nums():
-    dataset = AlgorithmDataSet(7, 4)
-    assert len(dataset) == 7 ** 4
+    modulus = 23
+    dataset = AlgorithmDataSet(modulus, 4)
+    assert len(dataset) == modulus ** 4
     for i in range(len(dataset)):
         lhs, rhs = dataset[i]
         lhs = dataset.tokenizer.decode(lhs)
         assert lhs[-1] == "="
         n1, n2, n3, n4 = get_nums4(lhs)
-        assert (n1 + n2 + n3 + n4) % 7 == int(rhs)
+        assert (n1 + n2 + n3 + n4) % modulus == int(rhs)
 
 
 def test_dataloader():

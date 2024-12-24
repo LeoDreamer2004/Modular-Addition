@@ -12,7 +12,9 @@ class Param:
     LOAD_MODEL: bool = False
     FIGURE_SAVE_PATH: str = "../fig/"
     MODULUS: int = 97
+    NUM_ADDER: int = 2
     SEED: int = 0
+    PRELOAD_TO_DEVICE: bool = True
 
     ### Logging ###
     LOG_INTERVAL: int = 10
@@ -43,13 +45,13 @@ class Param:
     SCHEDULER = "constant"
     STEP_LR_STEP_SIZE: int = 100
     STEP_LR_GAMMA: float = 0.98
-    LAMBDA_LR_FUNC: str = "decay_transformer"
+    LAMBDA_LR_FUNC: str = ""
 
     # transformer
     D_MODEL: int = 16
     N_HEAD: int = 1
     DIM_FEEDFORWARD: int = 32
-    MAX_SEQ_LENGTH: int = 8
+    MAX_SEQ_LENGTH: int = 2 * NUM_ADDER + 2
     DROPOUT: float = 0.
 
     # mlp

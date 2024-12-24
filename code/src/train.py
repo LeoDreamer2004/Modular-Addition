@@ -45,11 +45,12 @@ def train():
     seed()
 
     # Initialize data
-    dataset = AlgorithmDataSet(Param.MODULUS)
+    dataset = AlgorithmDataSet(Param.MODULUS, Param.NUM_ADDER)
     print("Modulus:", Param.MODULUS)
     print("Dataset initialized. Data size:", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
+    # FIXME: If not preload to device, rewrite the code, see `Param.PRELOAD_TO_DEVICE`
     train_label = torch.stack([lhs for lhs, _ in train_data]).to(DEVICE)
     train_target = torch.stack([rhs for _, rhs in train_data]).to(DEVICE)
     test_label = torch.stack([lhs for lhs, _ in test_data]).to(DEVICE)
@@ -76,6 +77,10 @@ def train():
         for epoch in range(Param.EPOCH_NUM):
             epoch_loss = 0
             for lhs, rhs in train_dataloader:
+                if not Param.PRELOAD_TO_DEVICE:
+                    lhs = lhs.to(DEVICE, copy=True)
+                    rhs = rhs.to(DEVICE, copy=True)
+
                 optimizer.zero_grad()
                 output = model.forward(lhs)  # Type: ignore
 
@@ -118,7 +123,7 @@ def train():
     save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}"
+    suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}-{Param.NUM_ADDER}"
     x = range(Param.LOG_INTERVAL, trained_epoch + 1, Param.LOG_INTERVAL)
     x = x[:len(train_accuracy_list)]
     plt.plot(x, train_losses, label="train")

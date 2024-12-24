@@ -1,0 +1,26 @@
+{
+    "model_path": "../model/transformer.pth",
+    "optimizer": "AdamW",
+    "scheduler": "step",
+    "scheduler_step_size": 100,
+    //    "preload_to_device": false,
+    "scheduler_gamma": 0.9,
+    "num_adder": 3,
+    "modulus": 47,
+    "epoch_num": 5000,
+    "lr": 0.001,
+    "seed": 0,
+    "batch_size": 512,
+    "test_alpha": 0.2,
+    "d_model": 512,
+    "n_head": 4,
+    "dim_feedforward": 256,
+    "n_layers": 1,
+    "max_seq_length": 8,
+    "dropout": 0,
+    "weight_decay": 0.001,
+    "log_interval": 1,
+    "save_interval": 1000
+    // Gradient clipping
+    //    "max_grad_norm": 3
+}

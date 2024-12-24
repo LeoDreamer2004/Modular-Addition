@@ -1,10 +1,11 @@
+from itertools import product
 from typing import List, Tuple
 
 import torch
 from torch import Tensor
 from torch.utils.data import Dataset
 
-from modular_add.params import DEVICE
+from modular_add.params import DEVICE, Param
 
 EOS_TOKEN = "<eos>"
 OP_TOKENS = ["+", "="]
@@ -67,8 +68,12 @@ class AlgorithmDataSet(Dataset):
         self.num_adder = num_adder
         self.tokenizer = AlgorithmDataTokenizer(modulus)
         lhs, rhs = self.make_data()
-        self.lhs = [self.tokenizer.encode(d).to(DEVICE) for d in lhs]
-        self.rhs = torch.tensor([self.tokenizer.s2i[d] for d in rhs]).to(DEVICE)
+        if Param.PRELOAD_TO_DEVICE:
+            self.lhs = [self.tokenizer.encode(d).to(DEVICE) for d in lhs]
+            self.rhs = torch.tensor([self.tokenizer.s2i[d] for d in rhs]).to(DEVICE)
+        else:
+            self.lhs = [self.tokenizer.encode(d) for d in lhs]
+            self.rhs = torch.tensor([self.tokenizer.s2i[d] for d in rhs])
 
     def __len__(self):
         return len(self.lhs)
@@ -80,17 +85,10 @@ class AlgorithmDataSet(Dataset):
     def data_maker(n: int, modulus: int) -> List[Tuple]:
         if n <= 0:
             raise ValueError("number of adders should be more than 0.")
-        if n == 1:
-            return [(i,) for i in range(modulus)]
-        results = []
-        temp = AlgorithmDataSet.data_maker(n - 1, modulus)
-        for i in range(modulus):
-            for item in temp:
-                results.append((*item, i))
-        return results
+        return list(product(range(modulus), repeat=n))
 
     def make_data(self):
-        all_nums = self.data_maker(self.num_adder, self.modulus)
+        all_nums = AlgorithmDataSet.data_maker(self.num_adder, self.modulus)
         lhs = []
         rhs = []
         for nums in all_nums:
