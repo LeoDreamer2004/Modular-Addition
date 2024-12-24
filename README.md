@@ -8,6 +8,7 @@ Gives a simple implementation of Transformer model, as a recurrence to Grokking 
 
 - [ ] Rerun transformer-SGD-0.5
 - [ ] Transformer-RMSProp-0.5
+- [ ] Transformer-Adam-0.5
 - [ ] Transformer-AdamW-0.5 with dropout
 - [ ] Transformer-AdamW-0.4
 - [ ] Transformer-AdamW-0.3
