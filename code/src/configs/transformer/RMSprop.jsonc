@@ -1,12 +1,12 @@
 {
     "model_path": "../model/transformer.pth",
     "optimizer": "RMSprop",
+    "use_tf32": true,
     "scheduler": "step",
     "scheduler_step_size": 100,
     "scheduler_gamma": 0.97,
     "modulus": 97,
     "epoch_num": 2000,
-    "use_tf32": true,
     "lr": 0.00007,
     "seed": 0,
     "batch_size": 256,

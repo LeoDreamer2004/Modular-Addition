@@ -53,6 +53,7 @@ def train():
     print("Modulus:", Param.MODULUS)
     print("Dataset initialized. Data size:", len(dataset))
     train_data, test_data = train_test_split(dataset, test_size=Param.TEST_ALPHA)
+    print("Train size:", len(train_data), "Test size:", len(test_data))
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
 
     # FIXME: If not preload to device, rewrite the code, see `Param.PRELOAD_TO_DEVICE`
