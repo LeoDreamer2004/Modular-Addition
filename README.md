@@ -9,7 +9,7 @@ paper [Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets
 
 - [x] Rerun transformer-SGD-0.5
 - [x] Transformer-RMSProp-0.5
-- [ ] Transformer-Adam-0.5
+- [x] Transformer-Adam-0.5
 - [ ] Transformer-AdamW-0.5 with dropout
 - [ ] Transformer-AdamW-0.6
 - [ ] Transformer-AdamW-0.4
