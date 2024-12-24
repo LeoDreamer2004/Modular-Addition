@@ -15,6 +15,7 @@ class Param:
     NUM_ADDER: int = 2
     SEED: int = 0
     PRELOAD_TO_DEVICE: bool = True
+    USE_TF32: bool = False  # On supported hardware, use tf32 is faster and less power-consuming, but the result may be different.
 
     ### Logging ###
     LOG_INTERVAL: int = 10

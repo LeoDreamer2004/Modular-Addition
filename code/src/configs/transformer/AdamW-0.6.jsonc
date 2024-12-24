@@ -1,24 +1,24 @@
 {
     "model_path": "../model/transformer.pth",
-    "optimizer": "RMSprop",
-    "scheduler": "step",
+    "optimizer": "AdamW",
+    //    "scheduler": "step",
     "scheduler_step_size": 100,
-    "scheduler_gamma": 0.97,
+    "scheduler_gamma": 0.9,
     "modulus": 97,
     "epoch_num": 2000,
-    "use_tf32": true,
-    "lr": 0.00007,
-    "seed": 0,
-    "batch_size": 256,
-    "test_alpha": 0.5,
+    "lr": 0.0008,
+    "seed": 1,
+    "batch_size": 512,
+    "test_alpha": 0.6,
     "d_model": 512,
-    "n_head": 8,
+    "n_head": 4,
     "dim_feedforward": 256,
     "n_layers": 1,
     "max_seq_length": 6,
     "dropout": 0,
+    "weight_decay": 0.001,
     "log_interval": 1,
-    "save_interval": 1000,
+    "save_interval": 1000
     // Gradient clipping
-    "max_grad_norm": 1
+    //    "max_grad_norm": 3
 }

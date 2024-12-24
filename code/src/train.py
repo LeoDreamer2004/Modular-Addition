@@ -20,8 +20,9 @@ def setup():
     torch.manual_seed(Param.SEED)
     torch.cuda.manual_seed(Param.SEED)
     np.random.seed(Param.SEED)
-    torch.backends.cuda.matmul.allow_tf32 = True
-    torch.backends.cudnn.allow_tf32 = True
+    if Param.USE_TF32:
+        torch.backends.cuda.matmul.allow_tf32 = True
+        torch.backends.cudnn.allow_tf32 = True
     random.seed(Param.SEED)
 
 
@@ -84,6 +85,7 @@ def train():
             epoch_loss = 0
             for lhs, rhs in train_dataloader:
                 if not Param.PRELOAD_TO_DEVICE:
+                    print("Not preload to device is not supported yet.")
                     lhs = lhs.to(DEVICE)
                     rhs = rhs.to(DEVICE)
 
