@@ -19,7 +19,8 @@ class Param:
 
     ### Logging ###
     LOG_INTERVAL: int = 10
-    SAVE_INTERVAL: int = 400
+    SAVE_MODEL_INTERVAL: int = 400
+    SAVE_FIG_INTERVAL: int = 100
 
     ### Hyperparameters ###
     # basic
@@ -54,6 +55,7 @@ class Param:
     DIM_FEEDFORWARD: int = 32
     MAX_SEQ_LENGTH: int = 2 * NUM_ADDER + 2
     DROPOUT: float = 0.
+    LAYER_NORM: float = False
 
     # mlp
     HIDDEN_SIZE: int = 256

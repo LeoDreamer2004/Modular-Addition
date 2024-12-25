@@ -140,6 +140,7 @@ class TransformerModel(nn.Module):
             [DecoderLayer(d_model, n_head, dim_feedforward, dropout) for _ in range(n_layers)]
         )
 
+        self.layer_norm = nn.LayerNorm(d_model)
         self.fc = nn.Linear(d_model, vocab_size)
         self.mask: Optional[Tensor] = None
 
@@ -174,6 +175,8 @@ class TransformerModel(nn.Module):
             x = layer(x, self.mask)
 
         x.transpose_(0, 1)
+        if Param.LAYER_NORM:
+            x = self.layer_norm(x)
         x = self.fc(x)
         x = x.sum(dim_len) / seq_len
         return x
