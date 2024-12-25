@@ -4,13 +4,13 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import torch.backends.cudnn
+import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
-from torch import nn, Tensor
+from torch import nn
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
 from torch.utils.data import DataLoader
-import torch.nn.functional as F
 
-from modular_add.data import AlgorithmDataSet
+from modular_add.data import AlgorithmDataSet, NoneRandomDataloader
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
@@ -36,13 +36,23 @@ def load_model(model: nn.Module):
     model.load_state_dict(torch.load(Param.MODEL_PATH, weights_only=True))
 
 
-def accuracy(label: Tensor, target: Tensor, model: nn.Module):
+def accuracy(dataloader: NoneRandomDataloader, model: nn.Module):
     with torch.no_grad():
-        output = model.forward(label)
-        _, predicted = torch.max(output, 1)
-        loss = F.cross_entropy(output, target)
-        correct = (predicted == target).sum().item()  # Type: ignore
-        return loss.item(), correct / target.size(0)
+        model.eval()
+        total = 0
+        correct = 0
+        loss = 0.0
+        for lhs, rhs in dataloader:
+            if not Param.PRELOAD_TO_DEVICE:
+                lhs = lhs.to(DEVICE)
+                rhs = rhs.to(DEVICE)
+            output = model.forward(lhs)
+            loss += F.cross_entropy(output, rhs).item()
+            _, predicted = output.max(1)
+            total += rhs.size(0)
+            correct += predicted.eq(rhs).sum().item()
+        model.train()
+    return loss, correct / total
 
 
 def train():
@@ -56,13 +66,11 @@ def train():
     print("Train size:", len(train_data), "Test size:", len(test_data))
     train_dataloader = DataLoader(train_data, batch_size=Param.BATCH_SIZE, shuffle=True)
 
-    # FIXME: If not preload to device, rewrite the code, see `Param.PRELOAD_TO_DEVICE`
-    # Don't using Dataloader to avoid random action when calculating accuracy
+    # Don't use Dataloader to avoid random action when calculating accuracy
     # Otherwise, the result may not be reproducible with different log interval
-    train_label = torch.stack([lhs for lhs, _ in train_data]).to(DEVICE)
-    train_target = torch.stack([rhs for _, rhs in train_data]).to(DEVICE)
-    test_label = torch.stack([lhs for lhs, _ in test_data]).to(DEVICE)
-    test_target = torch.stack([rhs for _, rhs in test_data]).to(DEVICE)
+    batch_size = len(train_data) if Param.PRELOAD_TO_DEVICE else Param.BATCH_SIZE
+    train_dataloader_val = NoneRandomDataloader(train_data, batch_size=batch_size)
+    test_dataloader_val = NoneRandomDataloader(test_data, batch_size=len(test_data))
 
     # Prepare model
     model = get_model(len(dataset.tokenizer))
@@ -86,7 +94,6 @@ def train():
             epoch_loss = 0
             for lhs, rhs in train_dataloader:
                 if not Param.PRELOAD_TO_DEVICE:
-                    print("Not preload to device is not supported yet.")
                     lhs = lhs.to(DEVICE)
                     rhs = rhs.to(DEVICE)
 
@@ -102,8 +109,8 @@ def train():
             scheduler.step()
 
             if (epoch + 1) % Param.LOG_INTERVAL == 0:
-                train_loss, train_accuracy = accuracy(train_label, train_target, model)
-                test_loss, test_accuracy = accuracy(test_label, test_target, model)
+                train_loss, train_accuracy = accuracy(train_dataloader_val, model)
+                test_loss, test_accuracy = accuracy(test_dataloader_val, model)
                 train_accuracy_list.append(train_accuracy)
                 test_accuracy_list.append(test_accuracy)
                 train_losses.append(train_loss)

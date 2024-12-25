@@ -89,3 +89,10 @@ def transformer_adam(e):
     if e < 1000:
         return 1
     return 0.99 ** ((e - 1000) // 10)
+
+
+def transformer_adamw(e):
+    ratio = 0.99 ** (e // 100)
+    if ratio < 1e-2:
+        return 1e-2
+    return ratio

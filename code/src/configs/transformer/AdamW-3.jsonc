@@ -3,7 +3,7 @@
     "optimizer": "AdamW",
     "scheduler": "step",
     "scheduler_step_size": 100,
-    //    "preload_to_device": false,
+    "preload_to_device": false,
     "scheduler_gamma": 0.9,
     "num_adder": 3,
     "modulus": 47,

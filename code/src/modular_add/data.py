@@ -59,7 +59,7 @@ class AlgorithmDataSet(Dataset):
     """
     Modular addition dataset
 
-    input: "x_1 + x_2 + ... + x_k ="            encoded shape: (4, vocab_size)  (one-hot encoding)
+    input: "x_1 + x_2 + ... + x_k ="            encoded shape: (2 * k, vocab_size)  (one-hot encoding)
     output: (x_1 + x_2 + ... + x_k) % modulus   encoded shape: ()  (index)
     """
 
@@ -101,3 +101,20 @@ class AlgorithmDataSet(Dataset):
             lhs.append(lhs_str)
             rhs.append(str(rhs_sum % self.modulus))
         return lhs, rhs
+
+
+class NoneRandomDataloader:
+    """
+    Dataloader that does not shuffle the data and does not contain any randomness
+    """
+
+    def __init__(self, dataset: List[Tuple[Tensor]], batch_size: int = None):
+        self.batch_size = len(dataset) if batch_size is None else batch_size
+        self.dataset = dataset
+
+    def __iter__(self):
+        for i in range(0, len(self.dataset), self.batch_size):
+            end = min(i + self.batch_size, len(self.dataset))
+            lhs = torch.stack([d[0] for d in self.dataset[i:end]])
+            rhs = torch.stack([d[1] for d in self.dataset[i:end]])
+            yield lhs, rhs

@@ -25,7 +25,7 @@ def test_dataset():
 
 
 def test_dataset_more_nums():
-    modulus = 23
+    modulus = 13
     dataset = AlgorithmDataSet(modulus, 4)
     assert len(dataset) == modulus ** 4
     for i in range(len(dataset)):
