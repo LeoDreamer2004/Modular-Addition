@@ -83,6 +83,7 @@ def save_fig(trained_epoch: int, train_losses: List, train_acc: List, test_losse
     plt.legend()
     plt.xscale("log")
     plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"), dpi=300)
+    plt.clf()
 
 
 def train():
