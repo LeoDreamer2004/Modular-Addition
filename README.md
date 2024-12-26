@@ -7,7 +7,7 @@ paper [Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets
 
 ## Hardware Requirements
 
-You need GPU which supports TF32 floating point format to reproduce some results.
+You need GPU which supports [TensorFloat32](https://blogs.nvidia.com/blog/tensorfloat-32-precision-format/)(TF32) floating point format to reproduce some results.
 
 ## TODOS
 
@@ -17,5 +17,6 @@ You need GPU which supports TF32 floating point format to reproduce some results
 - [x] Transformer-AdamW-0.5 with dropout
 - [x] Transformer-AdamW-0.6
 - [x] Transformer-AdamW-0.4
-- [ ] Transformer-AdamW-0.7 (may not need)
-- [ ] Transformer-AdamW-0.3 (may not need)
+- [ ] Write report for results
+- [ ] Read papers about grokking
+- [ ] Give an explanation of grokking
