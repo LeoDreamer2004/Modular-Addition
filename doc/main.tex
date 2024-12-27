@@ -9,9 +9,10 @@
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
+\usepackage{microtype}
 \usepackage{xcolor}         % colors
 \usepackage{graphicx}       % images
+\usepackage{subcaption}
 
 \title{Final Project Report}
 
@@ -50,6 +51,41 @@ In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Sho
 \section{Experiments and Results}
 
 \subsection{Grokking on Transformer Model}
+
+Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.5-2.png}
+        \caption{Train percentage: 50\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.4-2.png}
+        \caption{Train percentage: 60\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.55-2.png}
+        \caption{Train percentage: 45\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.6-2.png}
+        \caption{Train percentage: 40\%}
+    \end{subfigure}
+    \caption{Accuracy of Transformer model with different train percentage}
+    \label{fig:transformer-accuracy}
+\end{figure}
+
+From the results, we can see that the grokking phenomenon occurs with $50\%$, $60\%$ and $45\%$ train data percentage. With less train data, it takes more epochs to generalize. For $40\%$ train data percentage although the model can memorize all training data, it fails to generalize on testing data.
+
+Lets look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{fig/transformer/loss-adamw-0.5-2.png}
+    \caption{Loss of Transformer model with 50\% train percentage}
+    \label{fig:transformer-loss}
+\end{figure}
 
 \subsection{Grokking on MLP and LSTM Model}
 
