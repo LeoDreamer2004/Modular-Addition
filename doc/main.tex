@@ -29,81 +29,92 @@
 
 \begin{document}
 
-\maketitle
+    \maketitle
 
-\begin{abstract}
-    This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with different models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
-\end{abstract}
+    \begin{abstract}
+        This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with different models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
+    \end{abstract}
 
-\section{Introduction}
 
-Unlike classical learning theory, which often predicts that overparameterized models should overfit, modern neural networks frequently exhibit remarkable generalization abilities. The paper introduced a novel concept called "grokking," where neural networks demonstrate a sudden improvement in generalization performance long after they have already overfit the training data.
+    \section{Introduction}
 
-In this report, we aim to replicate the key findings of the original paper, focusing on the phenomenon of grokking and the factors that influence it. By training different neural networks to learn modular addition $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$ where $p$ is a prime number, we investigate how the choice of model architecture, train-test split, optimizer, and regularization techniques affect the grokking phenomenon and give a possible explanation for it.
+    Unlike classical learning theory, which often predicts that overparameterized models should overfit, modern neural networks frequently exhibit remarkable generalization abilities. The paper introduced a novel concept called "grokking," where neural networks demonstrate a sudden improvement in generalization performance long after they have already overfit the training data.
 
-\section{Methodology}
+    In this report, we aim to replicate the key findings of the original paper, focusing on the phenomenon of grokking and the factors that influence it. By training different neural networks to learn modular addition $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$ where $p$ is a prime number, we investigate how the choice of model architecture, train-test split, optimizer, and regularization techniques affect the grokking phenomenon and give a possible explanation for it.
 
-We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
 
-In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $40\%$, $30\%$ and $20\%$ train data percentage.
+    \section{Methodology}
+
+    We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
+
+    In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $40\%$, $30\%$ and $20\%$ train data percentage.
 % TODO
 
-\section{Experiments and Results}
 
-\subsection{Grokking on Transformer Model}
+    \section{Experiments and Results}
 
-Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}.
+    \subsection{Grokking on Transformer Model}
 
-\begin{figure}[ht]
-    \centering
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.5-2.png}
-        \caption{Train percentage: 50\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.4-2.png}
-        \caption{Train percentage: 60\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.55-2.png}
-        \caption{Train percentage: 45\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.6-2.png}
-        \caption{Train percentage: 40\%}
-    \end{subfigure}
-    \caption{Accuracy of Transformer model with different train percentage}
-    \label{fig:transformer-accuracy}
-\end{figure}
+    Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}.
 
-From the results, we can see that the grokking phenomenon occurs with $50\%$, $60\%$ and $45\%$ train data percentage. With less train data, it takes more epochs to generalize. For $40\%$ train data percentage although the model can memorize all training data, it fails to generalize on testing data.
+    \begin{figure}[ht]
+        \centering
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.5-2.png}
+            \caption{Train percentage: 50\%}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.4-2.png}
+            \caption{Train percentage: 60\%}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.55-2.png}
+            \caption{Train percentage: 45\%}
+        \end{subfigure}
+        \begin{subfigure}{0.45\textwidth}
+            \includegraphics[width=\textwidth]{fig/transformer/accuracy-adamw-0.6-2.png}
+            \caption{Train percentage: 40\%}
+        \end{subfigure}
+        \caption{Accuracy of Transformer model with different train percentage}
+        \label{fig:transformer-accuracy}
+    \end{figure}
 
-Lets look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
+    From the results, we can see that the grokking phenomenon occurs with $50\%$, $60\%$ and $45\%$ train data percentage. With less train data, it takes more epochs to generalize. For $40\%$ train data percentage although the model can memorize all training data, it fails to generalize on testing data.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.5\textwidth]{fig/transformer/loss-adamw-0.5-2.png}
-    \caption{Loss of Transformer model with 50\% train percentage}
-    \label{fig:transformer-loss}
-\end{figure}
+    Lets look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
 
-\subsection{Grokking on MLP and LSTM Model}
+    \begin{figure}[ht]
+        \centering
+        \includegraphics[width=0.5\textwidth]{fig/transformer/loss-adamw-0.5-2.png}
+        \caption{Loss of Transformer model with 50\% train percentage}
+        \label{fig:transformer-loss}
+    \end{figure}
 
-Unlike Transformer, MLP does not have the self-attention mechanism and the memory to given tokens. That is why MLP is considered to be less powerful than Transformer in natural language processing tasks. LSTM is a type of recurrent neural network that can learn long-term dependencies. We train MLP and LSTM models on the same dataset and compare their grokking phenomena with the Transformer model.
+    \subsection{Grokking on MLP and LSTM Model}
 
-Particularly, we design the MLP model with layers: (input $\rightarrow$ 256 $\rightarrow $128$ \rightarrow $128$ \rightarrow $output) with ReLU activation functions inserted between each layer. Also, we introduced a layer normalized layer to strengthen the model's generalization ability. Thus, we observed the grokking phenomena in the MLP model, as the following figure shows.
+    Unlike Transformer, MLP does not have the self-attention mechanism and the memory to given tokens. That is why MLP is considered to be less powerful than Transformer in natural language processing tasks. LSTM is a type of recurrent neural network that can learn long-term dependencies. We train MLP and LSTM models on the same dataset and compare their grokking phenomena with the Transformer model.
 
-% TODO: add MLP grokking figure
-% \includegraphics{./fig/mlp/loss-adam-0.5.png}
+    Particularly, we design the MLP model with layers: (input $\rightarrow$ 256 $\rightarrow $128$ \rightarrow $128$ \rightarrow $output) with ReLU activation functions inserted between each layer. Also, we introduced a layer normalized layer to strengthen the model's generalization ability. Thus, we observed the grokking phenomena in the MLP model, as the following figure shows.
+    
+% TODO: add MLP and LSTM grokking figure
+% \includegraphics{./fig/mlp/accuracy-adam-0.5.png}
 
-Apparently, the accuary on test dataset remains less than 10\% despite the model's high accuary on the training dataset at first. However, as the cross entropy loss continues to decrease to some extent, the accuracy on the test dataset start gradually climbing up to nearly 100\%.
 
-\subsection{Impact of Optimizers and Regularization Techniques}
+    Apparently, the accuary on test dataset remains less than 10\% despite the model's high accuary on the training dataset at first. However, as the cross entropy loss continues to decrease to some extent, the accuracy on the test dataset start gradually climbing up to nearly 100\%.
 
-\section{Explanation of Grokking Phenomena}
+    At the same time, we designed the LSTM model with 2 layers, each with 128 hidden units. For better generalization, we added a layer normalization layer at the end of LSTM layer. We trained the LSTM model with Adam optimizer. The grokking phenomena in the LSTM model is shown in the following figure.
 
-\appendix
+    % \includegraphics{./fig/lstm/accuracy-adam-0.5.png}
+    We can see that when the model is memorizing the training data, the training accuracy increases rapidly, however, the loss on the test dataset does not decrease, even increases a bit. After the training accuracy reaches 100\%, the test accuracy starts to increase. Finally, the model generalizes well on the test dataset.
 
-\section{Appendix}
+    \subsection{Impact of Optimizers and Regularization Techniques}
+
+
+    \section{Explanation of Grokking Phenomena}
+
+    \appendix
+
+
+    \section{Appendix}
 
 \end{document}
