@@ -11,6 +11,7 @@
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
 \usepackage{xcolor}         % colors
+\usepackage{graphicx}       % images
 
 \title{Final Project Report}
 
@@ -30,7 +31,7 @@
 \maketitle
 
 \begin{abstract}
-    This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with diffferent models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
+    This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with different models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
 \end{abstract}
 
 \section{Introduction}
@@ -43,7 +44,7 @@ In this report, we aim to replicate the key findings of the original paper, focu
 
 We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
 
-In this project, we train Transformer, MLP, and LSTM models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $40\%$, $30\%$ and $20\%$ train data percentage.
+In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $40\%$, $30\%$ and $20\%$ train data percentage.
 % TODO
 
 \section{Experiments and Results}
@@ -51,6 +52,15 @@ In this project, we train Transformer, MLP, and LSTM models with $50\%$ train da
 \subsection{Grokking on Transformer Model}
 
 \subsection{Grokking on MLP and LSTM Model}
+
+Unlike Transformer, MLP does not have the self-attention mechanism and the memory to given tokens. That is why MLP is considered to be less powerful than Transformer in natural language processing tasks. LSTM is a type of recurrent neural network that can learn long-term dependencies. We train MLP and LSTM models on the same dataset and compare their grokking phenomena with the Transformer model.
+
+Particularly, we design the MLP model with layers: (input $\rightarrow$ 256 $\rightarrow $128$ \rightarrow $128$ \rightarrow $output) with ReLU activation functions inserted between each layer. Also, we introduced a layer normalized layer to strengthen the model's generalization ability. Thus, we observed the grokking phenomena in the MLP model, as the following figure shows.
+
+% TODO: add MLP grokking figure
+% \includegraphics{./fig/mlp/loss-adam-0.5.png}
+
+Apparently, the accuary on test dataset remains less than 10\% despite the model's high accuary on the training dataset at first. However, as the cross entropy loss continues to decrease to some extent, the accuracy on the test dataset start gradually climbing up to nearly 100\%.
 
 \subsection{Impact of Optimizers and Regularization Techniques}
 

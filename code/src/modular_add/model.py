@@ -37,8 +37,7 @@ class MLPModel(nn.Module):
 
     def forward(self, src: Tensor) -> Tensor:
         x = self.token_embedding(src.reshape(src.shape[0], -1))
-        for layer in self.hidden:
-            x = layer(x)
+        x = self.hidden(x)
         x = self.layer_norm(x)
         x = self.fc(x)
         return x
