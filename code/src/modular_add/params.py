@@ -11,6 +11,7 @@ class Param:
     MODEL_PATH: str = "../model/transformer.pth"
     LOAD_MODEL: bool = False
     FIGURE_SAVE_PATH: str = "../fig/"
+    RESULT_SAVE_PATH: str = "../result/"
     MODULUS: int = 97
     NUM_ADDER: int = 2
     SEED: int = 0
@@ -21,7 +22,7 @@ class Param:
     ### Logging ###
     LOG_INTERVAL: int = 10
     SAVE_MODEL_INTERVAL: int = 400
-    SAVE_FIG_INTERVAL: int = 100
+    SAVE_FIG_INTERVAL: int = 400
 
     ### Hyperparameters ###
     # basic

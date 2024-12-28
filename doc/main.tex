@@ -45,32 +45,17 @@ In this report, we aim to replicate the key findings of the original paper, focu
 
 We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
 
-In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $45\%$ and $40\%$ train data percentage. Moreover, we experiment with different optimizers and regularization techniques to investigate their impact on the grokking phenomenon.
+In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $45\%$ and $40\%$ train data with almost same hyperparameters \footnote{To make the train process more stable, we slightly change the learning rate with $60\%$ train data, but we think it does not effect the conclusion. For other cases, all hyperparameters are the same.}. Moreover, we experiment with different optimizers, regularization techniques and batch size to investigate their impact on the grokking phenomenon. When we change weight decay and dropout, all other hyperparameters are the same. For batch size, we use 256, 512 and full batch size.
 
 \section{Experiments and Results}
 
 \subsection{Grokking on Transformer Model}
 
-Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}.
+Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with weight decay $1e-4$ and $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}, for more detailed results, see Figure \ref{fig:transformer-accuracy-all} in the appendix.
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.5-2.png}
-        \caption{Train percentage: 50\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.4-2.png}
-        \caption{Train percentage: 60\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.55-2.png}
-        \caption{Train percentage: 45\%}
-    \end{subfigure}
-    \begin{subfigure}{0.45\textwidth}
-        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.6-2.png}
-        \caption{Train percentage: 40\%}
-    \end{subfigure}
+    \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-split.png}
     \caption{Accuracy of Transformer model with different train percentage}
     \label{fig:transformer-accuracy}
 \end{figure}
@@ -99,32 +84,111 @@ Unlike Transformer, MLP does not have the self-attention mechanism and the memor
 
 Particularly, we design the MLP model with layers: (input $\rightarrow$ 256 $\rightarrow $128$ \rightarrow $128$ \rightarrow $output) with ReLU activation functions inserted between each layer. Also, we introduced a layer normalized layer to strengthen the model's generalization ability. Thus, we observed the grokking phenomena in the MLP model, as the Figure \ref{fig:mlp-accuracy} shows.
 
-\begin{figure}[ht]
-    \centering
-    \includegraphics[width=0.5\textwidth]{../code/fig/mlp/accuracy-adam-0.5.png}
-    \caption{Accuracy of MLP model with 50\% train percentage}
-    \label{fig:mlp-accuracy}
-\end{figure}
-
 Apparently, the accuracy on test dataset remains less than 10\% despite the model's high accuracy on the training dataset at first. However, as the cross entropy loss continues to decrease to some extent, the accuracy on the test dataset start gradually climbing up to nearly 100\%.
 
-At the same time, we designed the LSTM model with 2 layers, each with 128 hidden units. For better generalization, we added a layer normalization layer at the end of LSTM layer. We trained the LSTM model with Adam optimizer. The grokking phenomena in the LSTM model is shown in the Figure \ref{fig:lstm-accuracy}.
+At the same time, we designed a LSTM model with 2 layers, each with 128 hidden units. For better generalization, we added a layer normalization layer at the end of LSTM layer. We trained the LSTM model with Adam optimizer. The grokking phenomena in the LSTM model is shown in the Figure \ref{fig:lstm-accuracy}.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{../code/fig/lstm/accuracy-adam-0.5.png}
-    \caption{Accuracy of LSTM model with 50\% train percentage}
-    \label{fig:lstm-accuracy}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/mlp/accuracy-adam-0.5.png}
+        \caption{MLP}
+        \label{fig:mlp-accuracy}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/lstm/accuracy-adam-0.5.png}
+        \caption{LSTM}
+        \label{fig:lstm-accuracy}
+    \end{subfigure}
+    \caption{Accuracy of MLP and LSTM model with 50\% train percentage}
+    \label{fig:mlp-lstm-accuracy}
 \end{figure}
-We can see that when the model is memorizing the training data, the training accuracy increases rapidly, however, the loss on the test dataset does not decrease, even increases a bit. After the training accuracy reaches 100\%, the test accuracy starts to increase. Finally, the model generalizes well on the test dataset.
+Similar to the MLP and Transformer models, the LSTM model also exhibits the grokking phenomenon. The accuracy on the test dataset remains low at the beginning, but it starts to increase after a certain number of epochs.
 
-\subsection{Impact of Optimizers and Regularization Techniques}
+\subsection{Impact of Optimizers, Regularization Techniques and Batch Size}
+
+In this section, we investigate the impact of different optimizers and regularization techniques on the grokking phenomenon. We train the same Transformer model with SGD, SignGD and RMSProp optimizers. Also, we tried to train the model with dropout, and different weight decay to investigate the influence of regularization techniques. Finally, to investigate how batch size influence grokking phenomena, we use different batch size to train the model. Experiments are only done on $50\%$ train data percentage because of limitation of computational resources.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-sgd-0.5-2.png}
+        \caption{SGD}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-signgd-0.5.png}
+        \caption{SignGD}
+    \end{subfigure}
+    \begin{subfigure}{0.3\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-rmsprop-0.5-2.png}
+        \caption{RMSProp}
+    \end{subfigure}
+    \caption{Accuracy of Transformer model with different optimizers}
+    \label{fig:transformer-optimizer}
+\end{figure}
+
+Figure \ref{fig:transformer-optimizer} shows how different optimizers affect the grokking phenomenon. Although the difference between optimizers leads to different convergence speeds and curve shapes, the grokking phenomenon still occurs in all cases.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-regularization.png}
+    \caption{Accuracy of Transformer model with different regularization techniques}
+    \label{fig:transformer-regularization}
+\end{figure}
+
+Figure \ref{fig:transformer-regularization} shows the impact of different regularization techniques on the grokking phenomenon. We can see that both  weight decay and dropout can help the model generalize better, which means it takes less epochs to generalize beyond overfitting.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-batchsize.png}
+    \caption{Accuracy of Transformer model with different batch size}
+    \label{fig:transformer-batchsize}
+\end{figure}
+
+Figure \ref{fig:transformer-batchsize} shows the impact of different batch size on the grokking phenomenon. As we can see, although smaller batch size leads to noise in the training curve, it takes less epochs to achieve generalization. The model trained with full batch fails to generalize with $10^4$ epochs budget.
+
+\subsection{Grokking Phenomena on Harder Problems}
+
+In this section, we trained a Transformer model to learn the modular addition $(x, y, z) \rightarrow (x + y + z)\, {\rm mod}\, p$ where $p$ is a prime number. Due to the increased data size and complexity of the problem, we choose a smaller prime number $p=23$. Also, to fit the harder problem, we increase the number of attention heads to 8. Figure \ref{fig:transformer-harder} shows the accuracy of the Transformer model with $40\%$ train percentage on the harder problem.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../code/fig/transformer/accuracy-adamw-0.6-3.png}
+    \caption{Accuracy of Transformer model with 40\% train percentage on harder problem}
+    \label{fig:transformer-harder}
+\end{figure}
+
+Although there is still grokking phenomenon, it is less usual to happen compared to the easier problem, which means we should tune the hyperparameters more carefully to achieve grokking on harder problems. Based on our model, more common cases are either the model fails to generalize or the test accuracy increases along with the training accuracy.
 
 \section{Explanation of Grokking Phenomena}
 
 \appendix
 
 \section{Appendix}
+
+Figure \ref{fig:transformer-accuracy-all} shows the accuracy of Transformer model with different train percentage in more detail.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.5-2.png}
+        \caption{Train percentage: 50\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.4-2.png}
+        \caption{Train percentage: 60\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.55-2.png}
+        \caption{Train percentage: 45\%}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=\textwidth]{../code/fig/transformer/accuracy-adamw-0.6-2.png}
+        \caption{Train percentage: 40\%}
+    \end{subfigure}
+    \caption{Accuracy of Transformer model with different train percentage}
+    \label{fig:transformer-accuracy-all}
+\end{figure}
 
 \bibliographystyle{plain}
 \bibliography{references}

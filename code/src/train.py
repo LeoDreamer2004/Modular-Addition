@@ -58,12 +58,17 @@ def accuracy(dataloader: NoneRandomDataloader, model: nn.Module):
 
 def save_fig(trained_epoch: int, train_losses: List, train_acc: List, test_losses: List, test_acc: List):
     save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
+    result_path = os.path.join(Param.RESULT_SAVE_PATH, Param.MODEL.lower())
     if not os.path.exists(save_path):
         os.makedirs(save_path)
+    if not os.path.exists(result_path):
+        os.makedirs(result_path)
+
     if Param.FIG_SUFFIX is not None:
         suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}-{Param.NUM_ADDER}-{Param.FIG_SUFFIX}"
     else:
         suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}-{Param.NUM_ADDER}"
+
     x = range(Param.LOG_INTERVAL, trained_epoch + 1 + Param.LOG_INTERVAL, Param.LOG_INTERVAL)
     x = x[:len(train_acc)]
     plt.plot(x, train_losses, label="train")
@@ -84,6 +89,10 @@ def save_fig(trained_epoch: int, train_losses: List, train_acc: List, test_losse
     plt.xscale("log")
     plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"), dpi=300)
     plt.clf()
+
+    with open(os.path.join(result_path, f"accuracy-{suffix}.txt"), "w") as f:
+        for i in range(len(train_acc)):
+            f.write(f"{x[i]} {train_acc[i]} {test_acc[i]}\n")
 
 
 def train():
