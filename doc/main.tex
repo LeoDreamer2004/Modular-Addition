@@ -20,14 +20,14 @@
 \title{Final Project Report}
 
 \author{
-    Author1 \\
+    Runlin Chen \\
     \texttt{email} \\
     \And
-    Author2 \\
+    Zibo Ren \\
     \texttt{email} \\
     \And
-    Author3 \\
-    \texttt{email} \\
+    Zixuan Yuan \\
+    \texttt{2200010825@stu.pku.edu.cn} \\
 }
 
 \begin{document}
@@ -65,7 +65,7 @@ Transformer is a powerful model contains attention mechanism, which is widely us
 
 From the results, we can see that the grokking phenomenon occurs with $50\%$, $60\%$ and $45\%$ train data percentage. With less train data, it takes more epochs to generalize. For $40\%$ train data percentage although the model can memorize all training data, it fails to generalize on testing data.
 
-Lets look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ and $45\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
+Now look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ and $45\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
 
 \begin{figure}[ht]
     \centering
@@ -132,23 +132,30 @@ In this section, we investigate the impact of different optimizers and regulariz
 
 Figure \ref{fig:transformer-optimizer} shows how different optimizers affect the grokking phenomenon. Although the difference between optimizers leads to different convergence speeds and curve shapes, the grokking phenomenon still occurs in all cases.
 
-\begin{figure}[ht]
+\begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-regularization.png}
+    \begin{minipage}[t]{0.45\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-regularization.png}
     \caption{Accuracy of Transformer model with different regularization techniques}
     \label{fig:transformer-regularization}
-\end{figure}
-
-Figure \ref{fig:transformer-regularization} shows the impact of different regularization techniques on the grokking phenomenon. We can see that both  weight decay and dropout can help the model generalize better, which means it takes less epochs to generalize beyond overfitting.
-
-\begin{figure}[ht]
+    \end{minipage}
+    \hspace{0.05\textwidth}
+    \begin{minipage}[t]{0.45\textwidth}
     \centering
-    \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-batchsize.png}
+    \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-batchsize.png}
     \caption{Accuracy of Transformer model with different batch size}
     \label{fig:transformer-batchsize}
+    \end{minipage}
 \end{figure}
 
-Figure \ref{fig:transformer-batchsize} shows the impact of different batch size on the grokking phenomenon. As we can see, although smaller batch size leads to noise in the training curve, it takes less epochs to achieve generalization. The model trained with full batch fails to generalize with $10^4$ epochs budget.
+Figure \ref{fig:transformer-regularization} shows the impact of different regularization techniques on the grokking phenomenon. Both weight decay and dropout can help the model generalize better, which means it takes less epochs to generalize beyond overfitting.
+
+% \begin{figure}[ht]
+    
+% \end{figure}
+
+Figure \ref{fig:transformer-batchsize} shows the impact of different batch size on the grokking phenomenon. Although smaller batch size leads to noise in the training curve, it takes less epochs to achieve generalization. The model trained with full batch fails to generalize with $10^4$ epochs budget.
 
 \subsection{Grokking Phenomena on Harder Problems}
 
@@ -164,6 +171,8 @@ In this section, we trained a Transformer model to learn the modular addition $(
 Although there is still grokking phenomenon, it is less usual to happen compared to the easier problem, which means we should tune the hyperparameters more carefully to achieve grokking on harder problems. Based on our model, more common cases are either the model fails to generalize or the test accuracy increases along with the training accuracy.
 
 \section{Explanation of Grokking Phenomena}
+
+DeMoss et al.(2024) give a theoretical explanation of the grokking phenomenon based on Kolmogorov complexity and rate-distortion theory. \cite{demoss2024complexity}. We reproduce the experiments and results in the paper and provide a detailed explanation of the grokking phenomenon. 
 
 \subsection{Kolmogorov Complexity and Rate-Distortion Theory}
 
@@ -186,7 +195,7 @@ $$
 
 While Kolmogorov complexity is uncomputable, its upper bound can be estimated with easy compression methods, and we take \texttt{bzip2} as an instance. 
 
-Principal Component Analysis (PCA) is a common compression technique in machine learning. With the given rank $r$, PCA can be seen as a low rank approximation of the original data matrix $X$. PCA acquires the optimal low rank approximation by minimizing the Frobenius norm of the difference between the original data matrix and the compressed data matrix. The compression function is defined as:
+Principal Component Analysis (PCA) is a common compression technique in machine learning. With the given rank $r$, PCA can be seen as a low rank approximation of the original data matrix $X$. PCA acquires the optimal low rank approximation by minimizing the Frobenius norm of the difference between the original and the compressed matrix. The compression function is defined as:
 $$
 \hat{X} = \arg\min_{\hat{X}} \left\| X - \hat{X} \right\|_F^2 \quad \text{s.t.} \quad \text{rank}(\hat{X}) \le r
 $$
@@ -196,50 +205,53 @@ $$
 Q(\theta) = \Delta \left\lfloor \frac{\theta}{\Delta} \right\rfloor
 $$
 
-We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the model. We simply evaluate the complexity of the model with the bzip size after compression, with the condition of stability.
-
+We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the model. We simply evaluate the complexity of the model with the bzip size after compression, with the condition of stability. Algorithm \ref{alg:compression} shows the model compression process with Bayesian Optimization.
 
 \begin{algorithm}[!ht]
     \renewcommand{\algorithmicrequire}{\textbf{Input:}}
     \renewcommand{\algorithmicensure}{\textbf{Output:}}
     \caption{Model Compression with Bayesian Optimization}
-    \label{ADMM}
+    \label{alg:compression}
     \begin{algorithmic}[1]
         \Require Model parameters $\theta$, optimizer steps $N$, error tolerance $\epsilon$;
         \Ensure Compressed model parameters $\hat{\theta}$;
-        \State Initialize Bayesian Optimization $B$ with the given hyperparameters;
-        \State Best hyperparameters $\hat{\theta}$ and size $s \leftarrow \infty$;
+        \State Initialize Bayesian Optimization $B$ with $\theta$;
+        \State Best hyperparameters $\hat{\theta}$ and complexity $\hat{s} \leftarrow \infty$;
     
-        % % if ... else
-        % \If {$a < 0$}
-        %     \State $y = 2;$
-        % \Else
-        %     \State $y = 4;$
-        % \EndIf
-    
-        % while
-        % \While {$a > 0$}
-            % \State $a--;$
-        % \EndWhile
-    
-        % for loop
         \For {$i=1,2,\cdots,N$}
         \State rank $r_i$, quantization space $\Delta_i$ $\leftarrow$ $B$.optimize();
         \Comment Suggestions from Bayesian Optimizer
-
+        \State $\theta \leftarrow R(\theta$, $r_i$);
+        \Comment Principal Component Analysis
+        \State $\theta \leftarrow Q(\theta$, $\Delta_i$);
+        \Comment Quantization
+        \If {$| \ell(\theta, D) - \ell(\hat{\theta}, D) | \le \epsilon$}
+        \Comment Accept the approximation
+            \State $s \leftarrow$ \texttt{bzip2}($\theta$);
+            \Comment Naive compression to estimate the complexity
+            \State Update $\hat{s}$ and $\hat{\theta}$ with $s$ and $\theta$ (if needed);
+        \EndIf
         \EndFor
-  
-        % return
-        \State \Return $c$.
+        \State \Return $\hat{\theta}$;
  \end{algorithmic}
 \end{algorithm}
 
+\subsection{Phenomena and Explanation}
+
+% TODO: Add figure
+Our compression works give a judgement on the model complexity, which is monitored while the model is trained. Figure {} clearly shows two phases while training:
+\begin{itemize}
+    \item \textbf{Memorizing}: The model tries to memorize the training data, and meanwhile the complexity of the model increases, with a low performance on the test dataset.
+    \item \textbf{Generalizing}: Due to the overfitting, low rank estimations of the model start to be obtained, which lead to a sudden decrease of the complexity. However, the model still maintains a high accuracy on train dataset, but it has found the feature of the data to some extent. At this time, actually the model is not complexed, and thus never "overfitting" anymore. That is probably why the model starts to generalize, and presents as the grokking phenomenon.
+\end{itemize}
+
+This experiment reveals the fundamental reason of the grokking phenomenon: the model complexity. Just due to the small size of the dataset, the model can easily overfit the data and try to analysis the principal features. The Kolmogorov complexity of the model decreases and then fits well with the data, enhancing the generalization performance.
 
 \appendix
 
 \section{Appendix}
 
-Figure \ref{fig:transformer-accuracy-all} shows the accuracy of Transformer model with different train percentage in more detail.
+Figure \ref{fig:transformer-accuracy-all} gives more details about the accuracy of Transformer model with different train percentage.
 
 \begin{figure}[ht]
     \centering
