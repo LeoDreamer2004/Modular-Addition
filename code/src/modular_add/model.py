@@ -6,19 +6,19 @@ from torch import Tensor
 from modular_add.params import *
 
 
-def get_model(n_token: int) -> nn.Module:
+def get_model(vocal_size: int) -> nn.Module:
     print("Using model type:", Param.MODEL)
     match Param.MODEL:
         case "transformer":
             return TransformerModel(
-                n_token, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
+                vocal_size, d_model=Param.D_MODEL, n_head=Param.N_HEAD, n_layers=Param.N_LAYERS,
                 max_seq_length=Param.MAX_SEQ_LENGTH, dim_feedforward=Param.DIM_FEEDFORWARD, dropout=Param.DROPOUT
             ).to(DEVICE)
         case "mlp":
-            return MLPModel(n_token, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
+            return MLPModel(vocal_size, hidden_size=Param.HIDDEN_SIZE).to(DEVICE)
         case "lstm":
             return LSTMModel(
-                n_token, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE, dropout=Param.DROPOUT
+                vocal_size, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE, dropout=Param.DROPOUT
             ).to(DEVICE)
 
 

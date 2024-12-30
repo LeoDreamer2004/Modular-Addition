@@ -1,20 +1,23 @@
 import os
 import random
-from typing import List
 
-import matplotlib.pyplot as plt
 import numpy as np
-import torch.backends.cudnn
+import optuna
 import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
 from torch.utils.data import DataLoader
 
+from modular_add.util import compress_size, save_data
 from modular_add.data import AlgorithmDataSet, NoneRandomDataloader
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
+
+epsilon = 1e-2
+
+optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 
 def setup():
@@ -54,45 +57,6 @@ def accuracy(dataloader: NoneRandomDataloader, model: nn.Module):
             correct += predicted.eq(rhs).sum().item()
         model.train()
     return loss, correct / total
-
-
-def save_fig(trained_epoch: int, train_losses: List, train_acc: List, test_losses: List, test_acc: List):
-    save_path = os.path.join(Param.FIGURE_SAVE_PATH, Param.MODEL.lower())
-    result_path = os.path.join(Param.RESULT_SAVE_PATH, Param.MODEL.lower())
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-    if not os.path.exists(result_path):
-        os.makedirs(result_path)
-
-    if Param.FIG_SUFFIX is not None:
-        suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}-{Param.NUM_ADDER}-{Param.FIG_SUFFIX}"
-    else:
-        suffix = f"{Param.OPTIMIZER.lower()}-{Param.TEST_ALPHA}-{Param.NUM_ADDER}"
-
-    x = range(Param.LOG_INTERVAL, trained_epoch + 1 + Param.LOG_INTERVAL, Param.LOG_INTERVAL)
-    x = x[:len(train_acc)]
-    plt.plot(x, train_losses, label="train")
-    plt.plot(x, test_losses, label="test")
-    plt.xlabel("Epoch")
-    plt.ylabel("Loss")
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.legend()
-    plt.savefig(os.path.join(save_path, f"loss-{suffix}.png"), dpi=300)
-    plt.clf()
-
-    plt.plot(x, train_acc, label="train")
-    plt.plot(x, test_acc, label="test")
-    plt.xlabel("Epoch")
-    plt.ylabel("Accuracy")
-    plt.legend()
-    plt.xscale("log")
-    plt.savefig(os.path.join(save_path, f"accuracy-{suffix}.png"), dpi=300)
-    plt.clf()
-
-    with open(os.path.join(result_path, f"accuracy-{suffix}.txt"), "w") as f:
-        for i in range(len(train_acc)):
-            f.write(f"{x[i]} {train_acc[i]} {test_acc[i]}\n")
 
 
 def train():
@@ -167,9 +131,15 @@ def train():
                 print("Saved model at epoch", epoch + 1)
 
             if (epoch + 1) % Param.SAVE_FIG_INTERVAL == 0:
-                save_fig(trained_epoch, train_losses, train_accuracy_list, test_losses, test_accuracy_list)
+                save_data(trained_epoch, train_losses, train_accuracy_list, test_losses, test_accuracy_list)
 
             trained_epoch += 1
+
+            if (epoch + 1) % 200 == 0:
+                # FIXME: VRAM leak
+                compressed_size = compress_size(model, train_dataloader_val, epsilon)
+                print(f"Compressed size: {compressed_size}")
+
     except KeyboardInterrupt:
         print("Training interrupted.")
     else:
@@ -179,4 +149,4 @@ def train():
     print("Model saved at", Param.MODEL_PATH)
 
     # Save figures
-    save_fig(trained_epoch, train_losses, train_accuracy_list, test_losses, test_accuracy_list)
+    save_data(trained_epoch, train_losses, train_accuracy_list, test_losses, test_accuracy_list)
