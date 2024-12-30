@@ -7,12 +7,15 @@
 \usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
+\usepackage{amsmath}        % math
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}
 \usepackage{xcolor}         % colors
 \usepackage{graphicx}       % images
 \usepackage{subcaption}
+\usepackage{algorithm, algorithmicx, algpseudocode}
+
 
 \title{Final Project Report}
 
@@ -161,6 +164,76 @@ In this section, we trained a Transformer model to learn the modular addition $(
 Although there is still grokking phenomenon, it is less usual to happen compared to the easier problem, which means we should tune the hyperparameters more carefully to achieve grokking on harder problems. Based on our model, more common cases are either the model fails to generalize or the test accuracy increases along with the training accuracy.
 
 \section{Explanation of Grokking Phenomena}
+
+\subsection{Kolmogorov Complexity and Rate-Distortion Theory}
+
+It is universally considered that the complexity of the model determined the generalization performance. We introduces Kolmogorov complexity $K(h)$ in algorithmic information theory (AIT), which is the minimum number of bits required to describe the string to encode. Lofti et al. shew a upper bound of expected risk $R(h)$ with the given complexity:
+$$
+R(h) \leq \hat{R}(h) + O\left(\sqrt{\frac{K(h)}{n}}\right)
+$$
+where $\hat{R}(h)$ is the empirical risk of the model, $n$ is the number of samples. 
+
+Just as what information theory does, algorithmic rate-distortion function $r_x(y)$ is defined as the minimum mutual information (here the complexity) when the distortion (here the risk) is below a certain threshold. 
+$$
+r_x(y) = \min_y\left\{ K(y): d(x, y) \le \epsilon \right\}
+$$
+where $d$ is the distortion function. The rate-distortion function is a non-increasing function of the distortion. In order to keep the stability of the model, we choose the distortion function under the loss function $d(\theta, \hat{\theta}) = | \ell(\theta, D) - \ell(\hat{\theta}, D) |$. And thus, we can control the rate-distortion trade-off by adjusting $\epsilon$, which serves as a criterion to accept the approximation:
+$$
+\left| \ell(\theta, D) - \ell(\hat{\theta}, D) \right| \le \epsilon
+$$
+
+\subsection{Compression Techniques}
+
+While Kolmogorov complexity is uncomputable, its upper bound can be estimated with easy compression methods, and we take \texttt{bzip2} as an instance. 
+
+Principal Component Analysis (PCA) is a common compression technique in machine learning. With the given rank $r$, PCA can be seen as a low rank approximation of the original data matrix $X$. PCA acquires the optimal low rank approximation by minimizing the Frobenius norm of the difference between the original data matrix and the compressed data matrix. The compression function is defined as:
+$$
+\hat{X} = \arg\min_{\hat{X}} \left\| X - \hat{X} \right\|_F^2 \quad \text{s.t.} \quad \text{rank}(\hat{X}) \le r
+$$
+
+Meanwhile, in order to discretize the data into computer-friendly forms, we plot a quantization on the model parameters with a bin spacing $\Delta$, and therefore introduce a quantization function $Q$:
+$$
+Q(\theta) = \Delta \left\lfloor \frac{\theta}{\Delta} \right\rfloor
+$$
+
+We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the model. We simply evaluate the complexity of the model with the bzip size after compression, with the condition of stability.
+
+
+\begin{algorithm}[!ht]
+    \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+    \renewcommand{\algorithmicensure}{\textbf{Output:}}
+    \caption{Model Compression with Bayesian Optimization}
+    \label{ADMM}
+    \begin{algorithmic}[1]
+        \Require Model parameters $\theta$, optimizer steps $N$, error tolerance $\epsilon$;
+        \Ensure Compressed model parameters $\hat{\theta}$;
+        \State Initialize Bayesian Optimization $B$ with the given hyperparameters;
+        \State Best hyperparameters $\hat{\theta}$ and size $s \leftarrow \infty$;
+    
+        % % if ... else
+        % \If {$a < 0$}
+        %     \State $y = 2;$
+        % \Else
+        %     \State $y = 4;$
+        % \EndIf
+    
+        % while
+        % \While {$a > 0$}
+            % \State $a--;$
+        % \EndWhile
+    
+        % for loop
+        \For {$i=1,2,\cdots,N$}
+        \State rank $r_i$, quantization space $\Delta_i$ $\leftarrow$ $B$.optimize();
+        \Comment Suggestions from Bayesian Optimizer
+
+        \EndFor
+  
+        % return
+        \State \Return $c$.
+ \end{algorithmic}
+\end{algorithm}
+
 
 \appendix
 
