@@ -44,7 +44,9 @@
 
 Classical learning theory generally predicts that overparameterized models should overfit to the training data, leading to poor generalization performance. Contrary to this expectation, modern neural networks frequently exhibit exceptional generalization capabilities. The paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} introduces the concept of "grokking," where neural networks demonstrate a sudden and substantial improvement in generalization performance long after they have overfitted to the training data.
 
-In this report, we aim to replicate the primary findings of the original study, focusing on the grokking phenomenon and its influencing factors. Specifically, we train various neural networks to learn the modular addition task $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$, where $p$ is a prime number. Through these experiments, we explore the impact of model architecture, train-test data split, optimizer selection, and regularization techniques on the grokking phenomenon, and provide potential explanations for the observed results..
+In this report, we aim to replicate the primary findings of the original study, focusing on the grokking phenomenon and its influencing factors. Specifically, we train various neural networks to learn the modular addition task 
+$$(x, y) \rightarrow (x + y) \mod p \quad x, y \in \mathbb{Z}_p$$
+where $p$ is a prime number. Through these experiments, we explore the impact of model architecture, train-test data split, optimizer selection, and regularization techniques on the grokking phenomenon, and provide potential explanations for the observed results..
 
 \section{Methodology}
 
