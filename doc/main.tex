@@ -37,14 +37,14 @@
 \maketitle
 
 \begin{abstract}
-    This report is based on the work presented in \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces the phenomenon wherein neural networks achieve improved generalization performance long after overfitting to the training data. In this study, we reproduce the grokking phenomenon across various model architectures, train-test splits, optimizers, and regularization techniques. Additionally, we propose potential explanations for this behavior based on experimental results.
+    This report is based on the work presented in \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces the phenomenon wherein neural networks achieve improved generalization performance long after overfitting to the training data. In this study, we reproduce the grokking phenomenon across various model architectures, train-test splits, optimizers, and regularization techniques. Additionally, we propose potential explanations for this behavior based on experimental results.  Our code is open-source and available at GitHub repository: \url{https://github.com/LeoDreamer2004/Modular-Addition}.
 \end{abstract}
 
 \section{Introduction}
 
 Classical learning theory generally predicts that overparameterized models should overfit to the training data, leading to poor generalization performance. Contrary to this expectation, modern neural networks frequently exhibit exceptional generalization capabilities. The paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} introduces the concept of "grokking," where neural networks demonstrate a sudden and substantial improvement in generalization performance long after they have overfitted to the training data.
 
-In this report, we aim to replicate the primary findings of the original study, focusing on the grokking phenomenon and its influencing factors. Specifically, we train various neural networks to learn the modular addition task $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$, where $p$ is a prime number. Through these experiments, we explore the impact of model architecture, train-test data split, optimizer selection, and regularization techniques on the grokking phenomenon, and provide potential explanations for the observed results. Our code is open-source and available at \href{https://github.com/LeoDreamer2004/Modular-Addition}{GitHub repository}.
+In this report, we aim to replicate the primary findings of the original study, focusing on the grokking phenomenon and its influencing factors. Specifically, we train various neural networks to learn the modular addition task $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$, where $p$ is a prime number. Through these experiments, we explore the impact of model architecture, train-test data split, optimizer selection, and regularization techniques on the grokking phenomenon, and provide potential explanations for the observed results..
 
 \section{Methodology}
 
