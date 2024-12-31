@@ -10,24 +10,26 @@
 \usepackage{amsmath}        % math
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{xeCJK}
 \usepackage{microtype}
 \usepackage{xcolor}         % colors
 \usepackage{graphicx}       % images
 \usepackage{subcaption}
 \usepackage{algorithm, algorithmicx, algpseudocode}
 
-
+\setCJKmainfont{SimSun}
+\setCJKmonofont{SimSun}
 \title{Final Project Report}
 
 \author{
-    Runlin Chen \\
-    \texttt{email} \\
+    陈润璘 \\
+    \texttt{2200010848} \\
     \And
-    Zibo Ren \\
-    \texttt{email} \\
+    任子博 \\
+    \texttt{2200010626} \\
     \And
-    Zixuan Yuan \\
-    \texttt{2200010825@stu.pku.edu.cn} \\
+    原梓轩 \\
+    \texttt{2200010825} \\
 }
 
 \begin{document}
@@ -35,37 +37,38 @@
 \maketitle
 
 \begin{abstract}
-    This report is based on the paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces phenomena that networks improve generalization performance long after overfitting. In this report, we reproduce the Grokking phenomena with different models, train-test split, optimizers and regularization techniques. We also provide explanations for the Grokking phenomena based on the experiments and results.
+    This report is based on the work presented in \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces the phenomenon wherein neural networks achieve improved generalization performance long after overfitting to the training data. In this study, we reproduce the grokking phenomenon across various model architectures, train-test splits, optimizers, and regularization techniques. Additionally, we propose potential explanations for this behavior based on experimental results.
 \end{abstract}
 
 \section{Introduction}
 
-Unlike classical learning theory, which often predicts that overparameterized models should overfit, modern neural networks frequently exhibit remarkable generalization abilities. The paper introduced a novel concept called "grokking," where neural networks demonstrate a sudden improvement in generalization performance long after they have already overfit the training data.
+Classical learning theory generally predicts that overparameterized models should overfit to the training data, leading to poor generalization performance. Contrary to this expectation, modern neural networks frequently exhibit exceptional generalization capabilities. The paper \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} introduces the concept of "grokking," where neural networks demonstrate a sudden and substantial improvement in generalization performance long after they have overfitted to the training data.
 
-In this report, we aim to replicate the key findings of the original paper, focusing on the phenomenon of grokking and the factors that influence it. By training different neural networks to learn modular addition $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$ where $p$ is a prime number, we investigate how the choice of model architecture, train-test split, optimizer, and regularization techniques affect the grokking phenomenon and give a possible explanation for it.
+In this report, we aim to replicate the primary findings of the original study, focusing on the grokking phenomenon and its influencing factors. Specifically, we train various neural networks to learn the modular addition task $(x, y) \rightarrow (x + y)\, {\rm mod}\, p$, where $p$ is a prime number. Through these experiments, we explore the impact of model architecture, train-test data split, optimizer selection, and regularization techniques on the grokking phenomenon, and provide potential explanations for the observed results. Our code is open-source and available at \href{https://github.com/LeoDreamer2004/Modular-Addition}{GitHub repository}.
 
 \section{Methodology}
 
-We choose the prime number $p=97$ and generate a dataset of $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output is the sum of $x$ and $y$ modulo $97$. By splitting the equation $x + y = z$ into tokens, we convert the problem into a predict next token task. For encoding the input, we use a one-hot encoding of the tokens.
+We select the prime number $p = 97$ to generate a dataset comprising $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output for each sample is the result of $(x + y) \mod 97$. By decomposing the equation $x + y = z$ into individual tokens, the task is reformulated as a next-token prediction problem. Inputs are encoded using one-hot representations of the tokens.
 
-In this project, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models with $50\%$ train data and $50\%$ test data. Also, we tried to train model with $60\%$, $45\%$ and $40\%$ train data with almost same hyperparameters \footnote{To make the train process more stable, we slightly change the learning rate with $60\%$ train data, but we think it does not effect the conclusion. For other cases, all hyperparameters are the same.}. Moreover, we experiment with different optimizers, regularization techniques and batch size to investigate their impact on the grokking phenomenon. When we change weight decay and dropout, all other hyperparameters are the same. For batch size, we use 256, 512 and full batch size.
+For this study, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models using a $50\%$ train-test split. While hyperparameters were kept consistent across experiments, slight adjustments were made to the learning rate in the $60\%$ training data case to stabilize training; we believe this adjustment does not affect the conclusions. 
+
+Furthermore, we investigate the effects of different optimizers, regularization techniques, and batch sizes on the grokking phenomenon. For weight decay and dropout experiments, all other hyperparameters remain unchanged. Batch sizes of 256, 512, and full-batch training are also evaluated to examine their impact on model performance and generalization.
 
 \section{Experiments and Results}
 
 \subsection{Grokking on Transformer Model}
-
-Transformer is a powerful model contains attention mechanism, which is widely used in NLP tasks. We train a Transformer model with 1 layer, embedding size 512, 4 attention heads and 256 feedforward dimension. The model is trained with AdamW optimizer with weight decay $1e-4$ and $10^5$ epochs budget. In our experiments, we take the train data percentage as $50\%$, $60\%$, $45\%$ and $40\%$. The curve of training accuracy and test accuracy with different train percentage is shown in Figure \ref{fig:transformer-accuracy}, for more detailed results, see Figure \ref{fig:transformer-accuracy-all} in the appendix.
+The Transformer model, equipped with an attention mechanism, is widely used for natural language processing (NLP) tasks due to its powerful representation capabilities. In our experiments, we trained a Transformer with a single layer, embedding size of 512, 4 attention heads, and a feedforward dimension of 256. The model was optimized using the AdamW optimizer with a weight decay of $10^{-4}$ over a budget of $10^5$ epochs. Training was conducted with train-test splits of $60\%$, $50\%$, $45\%$, and $40\%$. The training and testing accuracy curves for these splits are presented in Figure \ref{fig:transformer-accuracy}, with more detailed results available in Figure \ref{fig:transformer-accuracy-all} in the appendix.
 
 \begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\textwidth]{../code/result/transformer/accuracy-split.png}
-    \caption{Accuracy of Transformer model with different train percentage}
+    \caption{Accuracy of the Transformer model with different train-test splits.}
     \label{fig:transformer-accuracy}
 \end{figure}
 
-From the results, we can see that the grokking phenomenon occurs with $50\%$, $60\%$ and $45\%$ train data percentage. With less train data, it takes more epochs to generalize. For $40\%$ train data percentage although the model can memorize all training data, it fails to generalize on testing data.
+The results indicate that the grokking phenomenon is observed with training data proportions of $60\%$, $50\%$, and $45\%$. As the proportion of training data decreases, the model requires more epochs to generalize effectively. For the $40\%$ training data case, while the model successfully memorizes the training set, it fails to generalize to unseen data.
 
-Now look into the grokking phenomenon in more detail. We plot the training and testing loss of the Transformer model with $50\%$ and $45\%$ train data percentage in Figure \ref{fig:transformer-loss}. When the model is memorizing the training data, the training loss decreases rapidly, however, the testing loss does not decrease, even increases a bit. After many epochs, the testing loss starts to decrease, which is the grokking phenomenon.
+To analyze the grokking phenomenon in greater detail, we examined the training and testing loss for the Transformer model with $50\%$ and $45\%$ training data splits, as shown in Figure \ref{fig:transformer-loss}. During the memorization phase, the training loss decreases rapidly, but the testing loss initially stagnates or slightly increases. After a large number of epochs, the testing loss begins to decline sharply, signifying the onset of grokking.
 
 \begin{figure}[ht]
     \centering
@@ -83,13 +86,9 @@ Now look into the grokking phenomenon in more detail. We plot the training and t
 
 \subsection{Grokking on MLP and LSTM Model}
 
-Unlike Transformer, MLP does not have the self-attention mechanism and the memory to given tokens. That is why MLP is considered to be less powerful than Transformer in natural language processing tasks. LSTM is a type of recurrent neural network that can learn long-term dependencies. We train MLP and LSTM models on the same dataset and compare their grokking phenomena with the Transformer model.
+Unlike the Transformer model, the Multilayer Perceptron (MLP) lacks self-attention and the ability to capture token memory. In contrast, the Long Short-Term Memory (LSTM) network, a type of recurrent neural network, excels in modeling long-term dependencies. We trained both MLP and LSTM models on the same dataset to compare their grokking phenomena with the Transformer model.
 
-Particularly, we design the MLP model with layers: (input $\rightarrow$ 256 $\rightarrow $128$ \rightarrow $128$ \rightarrow $output) with ReLU activation functions inserted between each layer. Also, we introduced a layer normalized layer to strengthen the model's generalization ability. Thus, we observed the grokking phenomena in the MLP model, as the Figure \ref{fig:mlp-accuracy} shows.
-
-Apparently, the accuracy on test dataset remains less than 10\% despite the model's high accuracy on the training dataset at first. However, as the cross entropy loss continues to decrease to some extent, the accuracy on the test dataset start gradually climbing up to nearly 100\%.
-
-At the same time, we designed a LSTM model with 2 layers, each with 128 hidden units. For better generalization, we added a layer normalization layer at the end of LSTM layer. We trained the LSTM model with Adam optimizer. The grokking phenomena in the LSTM model is shown in the Figure \ref{fig:lstm-accuracy}.
+The MLP architecture consisted of four layers: input $\rightarrow$ 256 $\rightarrow$ 128 $\rightarrow$ 128 $\rightarrow$ output, with ReLU activation functions applied between layers and layer normalization included to enhance generalization. As shown in Figure \ref{fig:mlp-accuracy}, the MLP model initially achieves high accuracy on the training dataset while the test accuracy remains below $10\%$. However, as the cross-entropy loss decreases, the test accuracy gradually improves, eventually reaching nearly $100\%$, demonstrating the grokking phenomenon.
 
 \begin{figure}[ht]
     \centering
@@ -103,14 +102,17 @@ At the same time, we designed a LSTM model with 2 layers, each with 128 hidden u
         \caption{LSTM}
         \label{fig:lstm-accuracy}
     \end{subfigure}
-    \caption{Accuracy of MLP and LSTM model with 50\% train percentage}
+    \caption{Accuracy of MLP and LSTM models with a $50\%$ train-test split.}
     \label{fig:mlp-lstm-accuracy}
 \end{figure}
-Similar to the MLP and Transformer models, the LSTM model also exhibits the grokking phenomenon. The accuracy on the test dataset remains low at the beginning, but it starts to increase after a certain number of epochs.
+
+The LSTM model was designed with two layers, each comprising 128 hidden units, followed by a layer normalization layer to improve generalization. It was trained using the Adam optimizer. Similar to the MLP and Transformer models, the LSTM also exhibited the grokking phenomenon, as shown in Figure \ref{fig:lstm-accuracy}. The test accuracy remains low during the initial training phase but begins to increase significantly after several epochs, eventually achieving high generalization performance.
+
+These results confirm that the grokking phenomenon is not exclusive to a particular architecture. However, the rate and extent of grokking vary across models, reflecting differences in their ability to capture and generalize from the training data.
 
 \subsection{Impact of Optimizers, Regularization Techniques and Batch Size}
 
-In this section, we investigate the impact of different optimizers and regularization techniques on the grokking phenomenon. We train the same Transformer model with SGD, SignGD and RMSProp optimizers. Also, we tried to train the model with dropout, and different weight decay to investigate the influence of regularization techniques. Finally, to investigate how batch size influence grokking phenomena, we use different batch size to train the model. Experiments are only done on $50\%$ train data percentage because of limitation of computational resources.
+In this section, we analyze the effects of optimizers, regularization techniques, and batch size on the grokking phenomenon. The experiments were conducted using the same Transformer model on a $50\%$ train-test split due to computational constraints. The model was trained using SGD, SignGD, and RMSProp optimizers to assess the role of optimization methods. Regularization techniques, including dropout and varying weight decay values, were also applied. Finally, we examined the influence of batch size by training the model with different configurations.
 
 \begin{figure}[ht]
     \centering
@@ -130,7 +132,7 @@ In this section, we investigate the impact of different optimizers and regulariz
     \label{fig:transformer-optimizer}
 \end{figure}
 
-Figure \ref{fig:transformer-optimizer} shows how different optimizers affect the grokking phenomenon. Although the difference between optimizers leads to different convergence speeds and curve shapes, the grokking phenomenon still occurs in all cases.
+Figure \ref{fig:transformer-optimizer} illustrates the effects of various optimizers on grokking. While the choice of optimizer alters convergence speed and the shape of training curves, the grokking phenomenon consistently occurs in all cases, suggesting that it is not strongly dependent on the specific optimization method.
 
 \begin{figure}[htbp]
     \centering
@@ -149,63 +151,66 @@ Figure \ref{fig:transformer-optimizer} shows how different optimizers affect the
     \end{minipage}
 \end{figure}
 
-Figure \ref{fig:transformer-regularization} shows the impact of different regularization techniques on the grokking phenomenon. Both weight decay and dropout can help the model generalize better, which means it takes less epochs to generalize beyond overfitting.
+The influence of regularization techniques is presented in Figure \ref{fig:transformer-regularization}. Both weight decay and dropout enhance the model's generalization capabilities, reducing the number of epochs required for grokking to occur. This indicates that regularization helps mitigate overfitting, allowing the model to achieve generalization more efficiently.
 
-% \begin{figure}[ht]
-    
-% \end{figure}
-
-Figure \ref{fig:transformer-batchsize} shows the impact of different batch size on the grokking phenomenon. Although smaller batch size leads to noise in the training curve, it takes less epochs to achieve generalization. The model trained with full batch fails to generalize with $10^4$ epochs budget.
+In Figure \ref{fig:transformer-batchsize}, we examined the impact of batch size on the grokking phenomenon. Smaller batch sizes introduce stochasticity into the training process, which appears to accelerate generalization, reducing the epochs needed for grokking. In contrast, training with a full batch size fails to achieve generalization within the $10^4$ epochs budget, likely due to the lack of noise, which hinders exploration of the loss landscape.
 
 \subsection{Grokking Phenomena on Harder Problems}
 
-In this section, we trained a Transformer model to learn the modular addition $(x, y, z) \rightarrow (x + y + z)\, {\rm mod}\, p$ where $p$ is a prime number. Due to the increased data size and complexity of the problem, we choose a smaller prime number $p=23$. Also, to fit the harder problem, we increase the number of attention heads to 8. Figure \ref{fig:transformer-harder} shows the accuracy of the Transformer model with $40\%$ train percentage on the harder problem.
+In this section, we trained a Transformer model to solve a more complex task: learning modular addition $(x, y, z) \rightarrow (x + y + z)\, {\rm mod}\, p$, where $p$ is a prime number. To manage the increased dataset size and problem complexity, we selected a smaller prime, $p=23$, and increased the number of attention heads to 8 to enhance the model's capacity.
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[width=0.5\textwidth]{../code/fig/transformer/accuracy-adamw-0.6-3.png}
-    \caption{Accuracy of Transformer model with 40\% train percentage on harder problem}
+    \includegraphics[width=0.45\textwidth]{../code/fig/transformer/accuracy-adamw-0.6-3.png}
+    \caption{Accuracy of Transformer model with $40\%$ train-test split on the harder problem.}
     \label{fig:transformer-harder}
 \end{figure}
 
-Although there is still grokking phenomenon, it is less usual to happen compared to the easier problem, which means we should tune the hyperparameters more carefully to achieve grokking on harder problems. Based on our model, more common cases are either the model fails to generalize or the test accuracy increases along with the training accuracy.
+As shown in Figure \ref{fig:transformer-harder}, the grokking phenomenon persists but is less pronounced compared to the simpler problem. This suggests that solving more complex tasks increases the difficulty of achieving grokking. In many cases, the model either fails to generalize or exhibits a gradual increase in test accuracy that parallels the improvement in training accuracy, rather than the sharp transition characteristic of grokking.
+
+These findings highlight the sensitivity of grokking to task complexity and hyperparameter selection. While the phenomenon remains observable, achieving it for harder problems demands a deeper exploration of the training process and adjustments to model configurations.
 
 \section{Explanation of Grokking Phenomena}
 
-DeMoss et al.(2024) give a theoretical explanation of the grokking phenomenon based on Kolmogorov complexity and rate-distortion theory. \cite{demoss2024complexity}. We reproduce the experiments and results in the paper and provide a detailed explanation of the grokking phenomenon. 
+DeMoss et al.(2024) give a theoretical explanation of the grokking phenomenon based on Kolmogorov complexity and rate-distortion theory in \cite{demoss2024complexity}. We reproduce the experiments and results in the paper and provide a detailed explanation of the grokking phenomenon. 
 
 \subsection{Kolmogorov Complexity and Rate-Distortion Theory}
 
-It is universally considered that the complexity of the model determined the generalization performance. We introduces Kolmogorov complexity $K(h)$ in algorithmic information theory (AIT), which is the minimum number of bits required to describe the string to encode. Lofti et al. shew a upper bound of expected risk $R(h)$ with the given complexity:
+It is widely acknowledged that the complexity of a model plays a crucial role in determining its generalization performance. To formalize this relationship, we introduce Kolmogorov complexity $K(h)$, as defined in algorithmic information theory (AIT). Kolmogorov complexity represents the minimum number of bits required to encode a hypothesis or model $h$. Lofti et al. provided an upper bound on the expected risk $R(h)$ in terms of $K(h)$:  
 $$
-R(h) \leq \hat{R}(h) + O\left(\sqrt{\frac{K(h)}{n}}\right)
-$$
-where $\hat{R}(h)$ is the empirical risk of the model, $n$ is the number of samples. 
+R(h) \leq \hat{R}(h) + O\left(\sqrt{\frac{K(h)}{n}}\right),
+$$  
+where $\hat{R}(h)$ denotes the empirical risk, and $n$ is the number of samples. 
 
-Just as what information theory does, algorithmic rate-distortion function $r_x(y)$ is defined as the minimum mutual information (here the complexity) when the distortion (here the risk) is below a certain threshold. 
+Inspired by information theory, we also consider the algorithmic rate-distortion function $r_x(y)$, which measures the minimum complexity required to encode a hypothesis $y$ under a distortion constraint:  
 $$
-r_x(y) = \min_y\left\{ K(y): d(x, y) \le \epsilon \right\}
+r_x(y) = \min_y\left\{ K(y): d(x, y) \leq \epsilon \right\},
+$$  
+where $d$ is the distortion function, and $\epsilon$ is the maximum allowable distortion. In this context, the distortion function quantifies the difference between the true risk and its approximation. The rate-distortion function $r_x(y)$ is a non-increasing function of distortion, meaning that higher allowable distortion results in lower complexity.
+
+To ensure model stability, we define the distortion function using the loss function $\ell$:  
 $$
-where $d$ is the distortion function. The rate-distortion function is a non-increasing function of the distortion. In order to keep the stability of the model, we choose the distortion function under the loss function $d(\theta, \hat{\theta}) = | \ell(\theta, D) - \ell(\hat{\theta}, D) |$. And thus, we can control the rate-distortion trade-off by adjusting $\epsilon$, which serves as a criterion to accept the approximation:
-$$
-\left| \ell(\theta, D) - \ell(\hat{\theta}, D) \right| \le \epsilon
-$$
+d(\theta, \hat{\theta}) = \left| \ell(\theta, D) - \ell(\hat{\theta}, D) \right|,
+$$  
+where $\theta$ represents the model parameters and $D$ the dataset. By controlling the trade-off between rate and distortion, we can manage the balance between model complexity and generalization. Specifically, $\epsilon$ serves as a criterion for accepting approximations, ensuring that the deviation in loss is bounded.
 
 \subsection{Compression Techniques}
 
-While Kolmogorov complexity is uncomputable, its upper bound can be estimated with easy compression methods, and we take \texttt{bzip2} as an instance. 
+Although Kolmogorov complexity is theoretically uncomputable, practical upper bounds can be estimated using standard compression algorithms. In our work, we use \texttt{bzip2} as a representative example to approximate the complexity of a model or data.  
 
-Principal Component Analysis (PCA) is a common compression technique in machine learning. With the given rank $r$, PCA can be seen as a low rank approximation of the original data matrix $X$. PCA acquires the optimal low rank approximation by minimizing the Frobenius norm of the difference between the original and the compressed matrix. The compression function is defined as:
+Principal Component Analysis (PCA) is another widely used compression technique in machine learning. Given a rank $r$, PCA provides a low-rank approximation of the original data matrix $X$ by minimizing the Frobenius norm of the difference between the original matrix and its approximation. The objective function for PCA is defined as:  
 $$
-\hat{X} = \arg\min_{\hat{X}} \left\| X - \hat{X} \right\|_F^2 \quad \text{s.t.} \quad \text{rank}(\hat{X}) \le r
-$$
+\hat{X} = \arg\min_{\hat{X}} \left\| X - \hat{X} \right\|_F^2 \quad \text{s.t.} \quad \text{rank}(\hat{X}) \le r.
+$$  
+This ensures that the compressed representation retains the most significant variance in the data, reducing redundancy while preserving essential features.
 
-Meanwhile, in order to discretize the data into computer-friendly forms, we plot a quantization on the model parameters with a bin spacing $\Delta$, and therefore introduce a quantization function $Q$:
+To further facilitate discretization of the model parameters into forms compatible with computational processing, we introduce a quantization scheme with a bin spacing $\Delta$. The quantization function $Q$ is defined as:  
 $$
-Q(\theta) = \Delta \left\lfloor \frac{\theta}{\Delta} \right\rfloor
-$$
+Q(\theta) = \Delta \left\lfloor \frac{\theta}{\Delta} \right\rfloor,
+$$  
+where $\theta$ represents the model parameters. Quantization helps reduce the precision of the parameters, which can also indirectly lower the model complexity and storage requirements.
 
-We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the model. We simply evaluate the complexity of the model with the bzip size after compression, with the condition of stability. Algorithm \ref{alg:compression} shows the model compression process with Bayesian Optimization.
+To find the optimal hyperparameters for compression, we employ Bayesian Optimization tools. The complexity of the model is evaluated as the compressed file size produced by \texttt{bzip2}, while ensuring stability in the model's performance. Algorithm \ref{alg:compression} outlines the model compression process using Bayesian Optimization.  
 
 \begin{algorithm}[!ht]
     \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -215,11 +220,11 @@ We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the 
     \begin{algorithmic}[1]
         \Require Model parameters $\theta$, optimizer steps $N$, error tolerance $\epsilon$;
         \Ensure Compressed model parameters $\hat{\theta}$;
-        \State Initialize Bayesian Optimization $B$ with $\theta$;
-        \State Best hyperparameters $\hat{\theta}$ and complexity $\hat{s} \leftarrow \infty$;
+        \State Initialize Bayesian Optimization $B$ with $\theta$ and output of rank $r_i$, quantization space $\Delta_i$;
+        \State Best parameters $\hat{\theta}$ and complexity $\hat{s} \leftarrow \infty$;
     
         \For {$i=1,2,\cdots,N$}
-        \State rank $r_i$, quantization space $\Delta_i$ $\leftarrow$ $B$.optimize();
+        \State $r_i$, $\Delta_i$ $\leftarrow$ $B$.optimize();
         \Comment Suggestions from Bayesian Optimizer
         \State $\theta \leftarrow R(\theta$, $r_i$);
         \Comment Principal Component Analysis
@@ -229,7 +234,7 @@ We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the 
         \Comment Accept the approximation
             \State $s \leftarrow$ \texttt{bzip2}($\theta$);
             \Comment Naive compression to estimate the complexity
-            \State Update $\hat{s}$ and $\hat{\theta}$ with $s$ and $\theta$ (if needed);
+            \State Update $\hat{s}$ and $\hat{\theta}$ with $s$ and $\theta$ if needed;
         \EndIf
         \EndFor
         \State \Return $\hat{\theta}$;
@@ -238,14 +243,25 @@ We apply Bayesian Optimaztion tools to find the optimal hyperparameters for the 
 
 \subsection{Phenomena and Explanation}
 
-% TODO: Add figure
-Our compression works give a judgement on the model complexity, which is monitored while the model is trained. Figure {} clearly shows two phases while training:
-\begin{itemize}
-    \item \textbf{Memorizing}: The model tries to memorize the training data, and meanwhile the complexity of the model increases, with a low performance on the test dataset.
-    \item \textbf{Generalizing}: Due to the overfitting, low rank estimations of the model start to be obtained, which lead to a sudden decrease of the complexity. However, the model still maintains a high accuracy on train dataset, but it has found the feature of the data to some extent. At this time, actually the model is not complexed, and thus never "overfitting" anymore. That is probably why the model starts to generalize, and presents as the grokking phenomenon.
-\end{itemize}
+Our compression experiments provide a dynamic measure of model complexity during training. As illustrated in Figure \ref{fig:complexity}, the training process can be divided into two distinct phases:  
 
-This experiment reveals the fundamental reason of the grokking phenomenon: the model complexity. Just due to the small size of the dataset, the model can easily overfit the data and try to analysis the principal features. The Kolmogorov complexity of the model decreases and then fits well with the data, enhancing the generalization performance.
+\begin{itemize}
+    \item \textbf{Memorizing}: During the initial phase, the model focuses on memorizing the training data. This results in a steady increase in model complexity, as captured by the compression size. However, the model demonstrates poor performance on the test dataset, indicating overfitting to the training data.  
+    \item \textbf{Generalizing}: In the later phase, overfitting leads the model to identify low-rank representations that capture the underlying structure of the data. This results in a sharp decrease in model complexity as redundancy is minimized. Despite the reduced complexity, the model retains high accuracy on the training data, indicating that it has learned key data features. At this point, the model transitions from overfitting to effective generalization, which aligns with the grokking phenomenon.
+\end{itemize}  
+
+This experiment reveals the fundamental cause of the grokking phenomenon: model complexity. Due to the small size of the dataset, the model easily overfits the data while attempting to analyze its principal features. As training progresses, the model's Kolmogorov complexity decreases, aligning more closely with the data and thereby improving its generalization performance.
+
+Our results support the hypothesis that grokking emerges as a consequence of this interplay between overfitting and complexity reduction. In essence, the phenomenon is driven by the model's ability to shift from a memorization-focused phase to one where it extracts essential features, thereby achieving a balance between complexity and generalization.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{../code/result/complexity_new.png}
+    \caption{Model complexity alongside the training}
+    \label{fig:complexity}
+\end{figure}
+
+\newpage
 
 \appendix
 
