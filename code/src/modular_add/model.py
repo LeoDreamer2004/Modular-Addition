@@ -23,6 +23,14 @@ def get_model(vocal_size: int) -> nn.Module:
 
 
 class MLPModel(nn.Module):
+    """
+    MLP model for sequence-to-sequence tasks.
+
+    Args:
+        vocab_size (int): The size of the vocabulary.
+        hidden_size (int): The number of features in the hidden state.
+    """
+
     def __init__(self, vocab_size: int, hidden_size: int = 256):
         super(MLPModel, self).__init__()
         self.model_type = "MLP"
@@ -44,6 +52,17 @@ class MLPModel(nn.Module):
 
 
 class LSTMModel(nn.Module):
+    """
+    LSTM model for sequence-to-sequence tasks.
+
+    Args:
+        vocab_size (int): The size of the vocabulary.
+        n_layers (int): The number of LSTM layers.
+        input_size (int): The number of expected features of the input.
+        hidden_size (int): The number of features in the hidden state.
+        dropout (float): The dropout rate.
+    """
+
     def __init__(self, vocab_size: int, n_layers: int, input_size: int = 128, hidden_size: int = 256,
                  dropout: float = 0):
         super(LSTMModel, self).__init__()
@@ -70,6 +89,16 @@ class LSTMModel(nn.Module):
 
 
 class DecoderLayer(nn.Module):
+    """
+    Decoder layer for Transformer model.
+
+    Args:
+        d_model (int): The number of expected features of the input.
+        n_head (int): The number of attention heads.
+        dim_feedforward (int): The dimension of the feedforward network model.
+        dropout (float): The dropout rate.
+    """
+
     def __init__(self, d_model: int, n_head: int, dim_feedforward: int, dropout: float = 0):
         super(DecoderLayer, self).__init__()
         self.self_attn = nn.MultiheadAttention(d_model, n_head, dropout=dropout)

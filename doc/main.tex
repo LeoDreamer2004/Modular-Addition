@@ -37,7 +37,7 @@
 \maketitle
 
 \begin{abstract}
-    This report is based on the work presented in \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces the phenomenon wherein neural networks achieve improved generalization performance long after overfitting to the training data. In this study, we reproduce the grokking phenomenon across various model architectures, train-test splits, optimizers, and regularization techniques. Additionally, we propose potential explanations for this behavior based on experimental results.  Our code is open-source and available at GitHub repository: \url{https://github.com/LeoDreamer2004/Modular-Addition}.
+    This report is based on the work presented in \textit{Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets} \cite{power2022grokking}, which introduces the phenomenon wherein neural networks achieve improved generalization performance long after overfitting to the training data. In this study, we reproduce the grokking phenomenon across various model architectures, train-test splits, optimizers, and regularization techniques. Additionally, we propose potential explanations for this behavior based on experimental results. Our code is open-source and available at GitHub repository: \url{https://github.com/LeoDreamer2004/Modular-Addition}.
 \end{abstract}
 
 \section{Introduction}
@@ -50,7 +50,7 @@ In this report, we aim to replicate the primary findings of the original study, 
 
 We select the prime number $p = 97$ to generate a dataset comprising $97^2$ samples, each consisting of two integers $x$ and $y$ in the range $[0, 96]$. The target output for each sample is the result of $(x + y) \mod 97$. By decomposing the equation $x + y = z$ into individual tokens, the task is reformulated as a next-token prediction problem. Inputs are encoded using one-hot representations of the tokens.
 
-For this study, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models using a $50\%$ train-test split. While hyperparameters were kept consistent across experiments, slight adjustments were made to the learning rate in the $60\%$ training data case to stabilize training; we believe this adjustment does not affect the conclusions. 
+For this study, we train Transformer, Multilayer Perceptron (MLP), and Long Short-Term Memory (LSTM) models using a $50\%$ train-test split. While hyperparameters were kept consistent across experiments, slight adjustments were made to the learning rate in the $60\%$ training data case to stabilize training; we believe this adjustment does not affect the conclusions.
 
 Furthermore, we investigate the effects of different optimizers, regularization techniques, and batch sizes on the grokking phenomenon. For weight decay and dropout experiments, all other hyperparameters remain unchanged. Batch sizes of 256, 512, and full-batch training are also evaluated to examine their impact on model performance and generalization.
 
@@ -137,17 +137,17 @@ Figure \ref{fig:transformer-optimizer} illustrates the effects of various optimi
 \begin{figure}[htbp]
     \centering
     \begin{minipage}[t]{0.45\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-regularization.png}
-    \caption{Accuracy of Transformer model with different regularization techniques}
-    \label{fig:transformer-regularization}
+        \centering
+        \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-regularization.png}
+        \caption{Accuracy of Transformer model with different regularization techniques}
+        \label{fig:transformer-regularization}
     \end{minipage}
     \hspace{0.05\textwidth}
     \begin{minipage}[t]{0.45\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-batchsize.png}
-    \caption{Accuracy of Transformer model with different batch size}
-    \label{fig:transformer-batchsize}
+        \centering
+        \includegraphics[width=\textwidth]{../code/result/transformer/accuracy-batchsize.png}
+        \caption{Accuracy of Transformer model with different batch size}
+        \label{fig:transformer-batchsize}
     \end{minipage}
 \end{figure}
 
@@ -172,45 +172,45 @@ These findings highlight the sensitivity of grokking to task complexity and hype
 
 \section{Explanation of Grokking Phenomena}
 
-DeMoss et al.(2024) give a theoretical explanation of the grokking phenomenon based on Kolmogorov complexity and rate-distortion theory in \cite{demoss2024complexity}. We reproduce the experiments and results in the paper and provide a detailed explanation of the grokking phenomenon. 
+DeMoss et al.(2024) give a theoretical explanation of the grokking phenomenon based on Kolmogorov complexity and rate-distortion theory in \cite{demoss2024complexity}. We reproduce the experiments and results in the paper and provide a detailed explanation of the grokking phenomenon.
 
 \subsection{Kolmogorov Complexity and Rate-Distortion Theory}
 
-It is widely acknowledged that the complexity of a model plays a crucial role in determining its generalization performance. To formalize this relationship, we introduce Kolmogorov complexity $K(h)$, as defined in algorithmic information theory (AIT). Kolmogorov complexity represents the minimum number of bits required to encode a hypothesis or model $h$. Lofti et al. provided an upper bound on the expected risk $R(h)$ in terms of $K(h)$:  
+It is widely acknowledged that the complexity of a model plays a crucial role in determining its generalization performance. To formalize this relationship, we introduce Kolmogorov complexity $K(h)$, as defined in algorithmic information theory (AIT). Kolmogorov complexity represents the minimum number of bits required to encode a hypothesis or model $h$. Lofti et al. provided an upper bound on the expected risk $R(h)$ in terms of $K(h)$:
 $$
 R(h) \leq \hat{R}(h) + O\left(\sqrt{\frac{K(h)}{n}}\right),
-$$  
-where $\hat{R}(h)$ denotes the empirical risk, and $n$ is the number of samples. 
+$$
+where $\hat{R}(h)$ denotes the empirical risk, and $n$ is the number of samples.
 
-Inspired by information theory, we also consider the algorithmic rate-distortion function $r_x(y)$, which measures the minimum complexity required to encode a hypothesis $y$ under a distortion constraint:  
+Inspired by information theory, we also consider the algorithmic rate-distortion function $r_x(y)$, which measures the minimum complexity required to encode a hypothesis $y$ under a distortion constraint:
 $$
 r_x(y) = \min_y\left\{ K(y): d(x, y) \leq \epsilon \right\},
-$$  
+$$
 where $d$ is the distortion function, and $\epsilon$ is the maximum allowable distortion. In this context, the distortion function quantifies the difference between the true risk and its approximation. The rate-distortion function $r_x(y)$ is a non-increasing function of distortion, meaning that higher allowable distortion results in lower complexity.
 
-To ensure model stability, we define the distortion function using the loss function $\ell$:  
+To ensure model stability, we define the distortion function using the loss function $\ell$:
 $$
 d(\theta, \hat{\theta}) = \left| \ell(\theta, D) - \ell(\hat{\theta}, D) \right|,
-$$  
+$$
 where $\theta$ represents the model parameters and $D$ the dataset. By controlling the trade-off between rate and distortion, we can manage the balance between model complexity and generalization. Specifically, $\epsilon$ serves as a criterion for accepting approximations, ensuring that the deviation in loss is bounded.
 
 \subsection{Compression Techniques}
 
-Although Kolmogorov complexity is theoretically uncomputable, practical upper bounds can be estimated using standard compression algorithms. In our work, we use \texttt{bzip2} as a representative example to approximate the complexity of a model or data.  
+Although Kolmogorov complexity is theoretically uncomputable, practical upper bounds can be estimated using standard compression algorithms. In our work, we use \texttt{bzip2} as a representative example to approximate the complexity of a model or data.
 
-Principal Component Analysis (PCA) is another widely used compression technique in machine learning. Given a rank $r$, PCA provides a low-rank approximation of the original data matrix $X$ by minimizing the Frobenius norm of the difference between the original matrix and its approximation. The objective function for PCA is defined as:  
+Principal Component Analysis (PCA) is another widely used compression technique in machine learning. Given a rank $r$, PCA provides a low-rank approximation of the original data matrix $X$ by minimizing the Frobenius norm of the difference between the original matrix and its approximation. The objective function for PCA is defined as:
 $$
 \hat{X} = \arg\min_{\hat{X}} \left\| X - \hat{X} \right\|_F^2 \quad \text{s.t.} \quad \text{rank}(\hat{X}) \le r.
-$$  
+$$
 This ensures that the compressed representation retains the most significant variance in the data, reducing redundancy while preserving essential features.
 
-To further facilitate discretization of the model parameters into forms compatible with computational processing, we introduce a quantization scheme with a bin spacing $\Delta$. The quantization function $Q$ is defined as:  
+To further facilitate discretization of the model parameters into forms compatible with computational processing, we introduce a quantization scheme with a bin spacing $\Delta$. The quantization function $Q$ is defined as:
 $$
 Q(\theta) = \Delta \left\lfloor \frac{\theta}{\Delta} \right\rfloor,
-$$  
+$$
 where $\theta$ represents the model parameters. Quantization helps reduce the precision of the parameters, which can also indirectly lower the model complexity and storage requirements.
 
-To find the optimal hyperparameters for compression, we employ Bayesian Optimization tools. The complexity of the model is evaluated as the compressed file size produced by \texttt{bzip2}, while ensuring stability in the model's performance. Algorithm \ref{alg:compression} outlines the model compression process using Bayesian Optimization.  
+To find the optimal hyperparameters for compression, we employ Bayesian Optimization tools. The complexity of the model is evaluated as the compressed file size produced by \texttt{bzip2}, while ensuring stability in the model's performance. Algorithm \ref{alg:compression} outlines the model compression process using Bayesian Optimization.
 
 \begin{algorithm}[!ht]
     \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -222,7 +222,7 @@ To find the optimal hyperparameters for compression, we employ Bayesian Optimiza
         \Ensure Compressed model parameters $\hat{\theta}$;
         \State Initialize Bayesian Optimization $B$ with $\theta$ and output of rank $r_i$, quantization space $\Delta_i$;
         \State Best parameters $\hat{\theta}$ and complexity $\hat{s} \leftarrow \infty$;
-    
+
         \For {$i=1,2,\cdots,N$}
         \State $r_i$, $\Delta_i$ $\leftarrow$ $B$.optimize();
         \Comment Suggestions from Bayesian Optimizer
@@ -232,23 +232,23 @@ To find the optimal hyperparameters for compression, we employ Bayesian Optimiza
         \Comment Quantization
         \If {$| \ell(\theta, D) - \ell(\hat{\theta}, D) | \le \epsilon$}
         \Comment Accept the approximation
-            \State $s \leftarrow$ \texttt{bzip2}($\theta$);
-            \Comment Naive compression to estimate the complexity
-            \State Update $\hat{s}$ and $\hat{\theta}$ with $s$ and $\theta$ if needed;
+        \State $s \leftarrow$ \texttt{bzip2}($\theta$);
+        \Comment Naive compression to estimate the complexity
+        \State Update $\hat{s}$ and $\hat{\theta}$ with $s$ and $\theta$ if needed;
         \EndIf
         \EndFor
         \State \Return $\hat{\theta}$;
- \end{algorithmic}
+    \end{algorithmic}
 \end{algorithm}
 
 \subsection{Phenomena and Explanation}
 
-Our compression experiments provide a dynamic measure of model complexity during training. As illustrated in Figure \ref{fig:complexity}, the training process can be divided into two distinct phases:  
+Our compression experiments provide a dynamic measure of model complexity during training. As illustrated in Figure \ref{fig:complexity}, the training process can be divided into two distinct phases:
 
 \begin{itemize}
-    \item \textbf{Memorizing}: During the initial phase, the model focuses on memorizing the training data. This results in a steady increase in model complexity, as captured by the compression size. However, the model demonstrates poor performance on the test dataset, indicating overfitting to the training data.  
+    \item \textbf{Memorizing}: During the initial phase, the model focuses on memorizing the training data. This results in a steady increase in model complexity, as captured by the compression size. However, the model demonstrates poor performance on the test dataset, indicating overfitting to the training data.
     \item \textbf{Generalizing}: In the later phase, overfitting leads the model to identify low-rank representations that capture the underlying structure of the data. This results in a sharp decrease in model complexity as redundancy is minimized. Despite the reduced complexity, the model retains high accuracy on the training data, indicating that it has learned key data features. At this point, the model transitions from overfitting to effective generalization, which aligns with the grokking phenomenon.
-\end{itemize}  
+\end{itemize}
 
 This experiment reveals the fundamental cause of the grokking phenomenon: model complexity. Due to the small size of the dataset, the model easily overfits the data while attempting to analyze its principal features. As training progresses, the model's Kolmogorov complexity decreases, aligning more closely with the data and thereby improving its generalization performance.
 
@@ -291,7 +291,7 @@ Figure \ref{fig:transformer-accuracy-all} gives more details about the accuracy 
     \label{fig:transformer-accuracy-all}
 \end{figure}
 
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{references}
 
 \end{document}

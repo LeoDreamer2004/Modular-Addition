@@ -32,11 +32,22 @@ def coarse_grain(param: Tensor, delta: float, data_ratio: float) -> Tensor:
     return torch.round(low_rank_param / delta) * delta
 
 
-def compress_size(model: nn.Module, train_dataloader_val: NoneRandomDataloader, tol: float):
+def compress_size(model: nn.Module, train_dataloader: NoneRandomDataloader, tol: float) -> int:
+    """
+    Compress the model using the Bayesian optimization algorithm.
+
+    Args:
+        model: Model to compress.
+        train_dataloader: Dataloader for training data.
+        tol: Tolerance for the distortion.
+
+    Returns:
+        The minimum size of the compressed model.
+    """
     original_loss = 0
 
     with torch.no_grad():
-        for lhs, rhs in train_dataloader_val:
+        for lhs, rhs in train_dataloader:
             output = model.forward(lhs)
             original_loss += F.cross_entropy(output, rhs).item()
 
@@ -52,7 +63,7 @@ def compress_size(model: nn.Module, train_dataloader_val: NoneRandomDataloader, 
 
             loss = 0
             with torch.no_grad():
-                for l, r in train_dataloader_val:
+                for l, r in train_dataloader:
                     out = test_model.forward(l)
                     loss += F.cross_entropy(out, r).item()
 
@@ -77,13 +88,11 @@ def compress_size(model: nn.Module, train_dataloader_val: NoneRandomDataloader, 
 
         min_size = -optimizer.max["target"]
         if min_size < 1e37:
-            best_data_ratio = optimizer.max["params"].get("data_ratio", 1.0)
-            best_delta = optimizer.max["params"]["delta"]
-            param = coarse_grain(original_param.data, best_delta, best_data_ratio)
-            compressed_size += len(bz2.compress(pickle.dumps(param)))
+            compressed_size += min_size
         else:
+            # If the distortion is too large, we do not compress the parameter.
             compressed_size += len(bz2.compress(pickle.dumps(original_param.data)))
-        test_param = original_param
+        test_param.data = original_param.data
 
         # Garbage collection
         del optimizer
@@ -133,20 +142,20 @@ def save_data(trained_epoch: int, train_losses: List, train_acc: List, test_loss
             f.write(f"{x[i]} {train_acc[i]} {test_acc[i]}\n")
 
 
+@torch.no_grad()
 def accuracy(dataloader: NoneRandomDataloader, model: nn.Module):
-    with torch.no_grad():
-        model.eval()
-        total = 0
-        correct = 0
-        loss = 0.0
-        for lhs, rhs in dataloader:
-            if not Param.PRELOAD_TO_DEVICE:
-                lhs = lhs.to(DEVICE)
-                rhs = rhs.to(DEVICE)
-            output = model.forward(lhs)
-            loss += F.cross_entropy(output, rhs).item()
-            _, predicted = output.max(1)
-            total += rhs.size(0)
-            correct += predicted.eq(rhs).sum().item()
-        model.train()
+    model.eval()
+    total = 0
+    correct = 0
+    loss = 0.0
+    for lhs, rhs in dataloader:
+        if not Param.PRELOAD_TO_DEVICE:
+            lhs = lhs.to(DEVICE)
+            rhs = rhs.to(DEVICE)
+        output = model.forward(lhs)
+        loss += F.cross_entropy(output, rhs).item()
+        _, predicted = output.max(1)
+        total += rhs.size(0)
+        correct += predicted.eq(rhs).sum().item()
+    model.train()
     return loss, correct / total

@@ -2,7 +2,6 @@ import os
 import random
 
 import numpy as np
-import optuna
 from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
@@ -13,8 +12,6 @@ from modular_add.data import AlgorithmDataSet, NoneRandomDataloader
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
-
-optuna.logging.set_verbosity(optuna.logging.ERROR)
 
 
 def setup():
