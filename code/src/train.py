@@ -3,19 +3,16 @@ import random
 
 import numpy as np
 import optuna
-import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 from torch import nn
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
 from torch.utils.data import DataLoader
 
-from modular_add.util import compress_size, save_data
+from modular_add.util import compress_size, save_data, accuracy
 from modular_add.data import AlgorithmDataSet, NoneRandomDataloader
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
-
-epsilon = 1e-2
 
 optuna.logging.set_verbosity(optuna.logging.ERROR)
 
@@ -38,25 +35,6 @@ def save_model(model: nn.Module):
 
 def load_model(model: nn.Module):
     model.load_state_dict(torch.load(Param.MODEL_PATH, weights_only=True))
-
-
-def accuracy(dataloader: NoneRandomDataloader, model: nn.Module):
-    with torch.no_grad():
-        model.eval()
-        total = 0
-        correct = 0
-        loss = 0.0
-        for lhs, rhs in dataloader:
-            if not Param.PRELOAD_TO_DEVICE:
-                lhs = lhs.to(DEVICE)
-                rhs = rhs.to(DEVICE)
-            output = model.forward(lhs)
-            loss += F.cross_entropy(output, rhs).item()
-            _, predicted = output.max(1)
-            total += rhs.size(0)
-            correct += predicted.eq(rhs).sum().item()
-        model.train()
-    return loss, correct / total
 
 
 def train():
@@ -87,6 +65,7 @@ def train():
     test_losses = []
     test_accuracy_list = []
     trained_epoch = 0
+    compressed_size_list = []
 
     if Param.LOAD_MODEL:
         load_model(model)
@@ -94,6 +73,11 @@ def train():
 
     # Start training
     try:
+        if Param.CALCULATE_COMPLEXITY:
+            compressed_size = compress_size(model, train_dataloader_val, Param.COMPLEXITY_TOL)
+            compressed_size_list.append(compressed_size)
+            print(f"Initial compressed size: {compressed_size}")
+
         for epoch in range(Param.EPOCH_NUM):
             epoch_loss = 0
             for lhs, rhs in train_dataloader:
@@ -135,9 +119,9 @@ def train():
 
             trained_epoch += 1
 
-            if (epoch + 1) % 200 == 0:
-                # FIXME: VRAM leak
-                compressed_size = compress_size(model, train_dataloader_val, epsilon)
+            if Param.CALCULATE_COMPLEXITY and (epoch + 1) % Param.COMPLEXITY_INTERVAL == 0:
+                compressed_size = compress_size(model, train_dataloader_val, Param.COMPLEXITY_TOL)
+                compressed_size_list.append(compressed_size)
                 print(f"Compressed size: {compressed_size}")
 
     except KeyboardInterrupt:
@@ -148,5 +132,7 @@ def train():
     save_model(model)
     print("Model saved at", Param.MODEL_PATH)
 
-    # Save figures
+    # Save data
     save_data(trained_epoch, train_losses, train_accuracy_list, test_losses, test_accuracy_list)
+    compressed_size_list = np.array(compressed_size_list)
+    np.save(os.path.join(Param.RESULT_SAVE_PATH, "compressed_size.npy"), compressed_size_list)

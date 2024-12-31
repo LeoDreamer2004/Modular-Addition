@@ -23,6 +23,9 @@ class Param:
     LOG_INTERVAL: int = 10
     SAVE_MODEL_INTERVAL: int = 400
     SAVE_FIG_INTERVAL: int = 400
+    CALCULATE_COMPLEXITY: bool = False
+    COMPLEXITY_INTERVAL: int = 100
+    COMPLEXITY_TOL: float = 1e-3
 
     ### Hyperparameters ###
     # basic
