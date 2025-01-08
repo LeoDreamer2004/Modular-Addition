@@ -2,6 +2,7 @@ from itertools import product
 from typing import List, Tuple
 
 import torch
+import torch.nn.functional as F
 from torch import Tensor
 from torch.utils.data import Dataset
 
@@ -36,10 +37,9 @@ class AlgorithmDataTokenizer:
         """
         result = []
         for s in equation.split():
-            temp = [0] * len(self)
-            temp[self.s2i[s]] = 1
-            result.append(temp)
-        return torch.tensor(result, dtype=torch.float32)
+            one_hot = F.one_hot(torch.tensor(self.s2i[s]), num_classes=len(self))
+            result.append(one_hot)
+        return torch.stack(result).to(torch.float32)
 
     def decode(self, equation: Tensor) -> str:
         """Decode the tensor into a string
