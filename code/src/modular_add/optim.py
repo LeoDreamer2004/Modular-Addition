@@ -58,6 +58,7 @@ def get_optimizer(model: nn.Module) -> optim.Optimizer:
                 lr=Param.LR,
                 weight_decay=Param.WEIGHT_DECAY
             )
+    raise ValueError("Invalid optimizer type")
 
 
 def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
@@ -75,6 +76,7 @@ def get_scheduler(optimizer: optim.Optimizer) -> lr_scheduler.LRScheduler:
             return lr_scheduler.ConstantLR(optimizer, factor=1)
         case "cosine":
             return lr_scheduler.CosineAnnealingLR(optimizer, T_max=Param.T_MAX, eta_min=Param.MIN_LR)
+    raise ValueError("Invalid scheduler type")
 
 
 def transformer_sgd(e):

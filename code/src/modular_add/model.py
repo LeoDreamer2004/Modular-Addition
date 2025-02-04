@@ -20,6 +20,7 @@ def get_model(vocal_size: int) -> nn.Module:
             return LSTMModel(
                 vocal_size, n_layers=Param.N_LAYERS, hidden_size=Param.HIDDEN_SIZE, dropout=Param.DROPOUT
             ).to(DEVICE)
+    raise ValueError("Invalid model type")
 
 
 class MLPModel(nn.Module):
@@ -174,7 +175,7 @@ class TransformerModel(nn.Module):
 
     @staticmethod
     def _generate_square_subsequent_mask(size: int):
-        mask = (torch.triu(torch.ones(size, size)) == 1).transpose(0, 1)
+        mask = (torch.triu(torch.ones(size, size, device=DEVICE)) == 1).transpose(0, 1)
         mask = (
             mask.float()
             .masked_fill(mask == 0, float("-inf"))
@@ -194,8 +195,7 @@ class TransformerModel(nn.Module):
         embed.transpose_(0, 1)
 
         if self.mask is None or self.mask.size(0) != seq_len:
-            device = src.device
-            mask = self._generate_square_subsequent_mask(seq_len).to(device)
+            mask = self._generate_square_subsequent_mask(seq_len)
             self.mask = mask
 
         x = embed

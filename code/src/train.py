@@ -3,15 +3,15 @@ import random
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-from torch import nn
+from torch import nn, Tensor
 from torch.nn.utils import clip_grad_norm_, clip_grad_value_
 from torch.utils.data import DataLoader
 
-from modular_add.util import compress_size, save_data, accuracy
 from modular_add.data import AlgorithmDataSet, NoneRandomDataloader
 from modular_add.model import get_model
 from modular_add.optim import get_optimizer, get_scheduler
 from modular_add.params import *
+from modular_add.util import compress_size, save_data, accuracy
 
 
 def setup():
@@ -52,7 +52,14 @@ def train():
     test_dataloader_val = NoneRandomDataloader(test_data, batch_size=len(test_data))
 
     # Prepare model
-    model = get_model(len(dataset.tokenizer))
+    model = get_model(len(dataset.tokenizer)).train()
+    if Param.COMPILE:
+        try:
+            model = torch.compile(model, dynamic=False)
+        except RuntimeError:
+            print("Compile failed. Using the original model.")
+        else:
+            print("Model compiled.")
     optimizer = get_optimizer(model)
     scheduler = get_scheduler(optimizer)
     criterion = nn.CrossEntropyLoss()
@@ -83,7 +90,7 @@ def train():
                     rhs = rhs.to(DEVICE)
 
                 optimizer.zero_grad()
-                output = model.forward(lhs)  # Type: ignore
+                output: Tensor = model.forward(lhs)  # Type: ignore
 
                 loss = criterion.forward(output, rhs)
                 epoch_loss += loss.item()

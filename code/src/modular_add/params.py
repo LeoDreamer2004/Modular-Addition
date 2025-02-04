@@ -17,6 +17,7 @@ class Param:
     SEED: int = 0
     PRELOAD_TO_DEVICE: bool = True
     FIG_SUFFIX: str = None
+    COMPILE: bool = True
     USE_TF32: bool = False  # On supported hardware, use tf32 is faster and less power-consuming, but the result may be different.
 
     ### Logging ###
